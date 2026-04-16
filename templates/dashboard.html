@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jack & Minke</title>
+<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F2F2F7; --bg2:#FFFFFF; --bg3:#F2F2F7;
+  --sep:rgba(60,60,67,0.12); --sep-strong:rgba(60,60,67,0.22);
+  --ink:#1C1C1E; --ink2:#3A3A3C; --ink3:#636366; --ink4:#AEAEB2;
+  --blue:#0A84FF; --blue-bg:#E8F2FF; --blue-t:#004FAD;
+  --pink:#FF375F; --pink-bg:#FFF0F3; --pink-t:#9B1030;
+  --teal:#30B98A; --teal-bg:#E6F8F2; --teal-t:#0E6648;
+  --amber:#FF9F0A; --amber-bg:#FFF5E6; --amber-t:#7A4400;
+  --green:#34C759; --green-bg:#E9FAF0; --green-t:#1A6B32;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow:0 2px 8px rgba(0,0,0,0.08),0 1px 3px rgba(0,0,0,0.05);
+  --r:14px; --r-lg:20px;
+}
+body{
+  font-family:'DM Sans',-apple-system,sans-serif;
+  background:var(--bg);color:var(--ink);
+  min-height:100vh;font-size:15px;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* Nav */
+.nav{
+  background:rgba(242,242,247,0.88);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--sep);
+  padding:0 24px;display:flex;align-items:center;justify-content:space-between;
+  height:58px;position:sticky;top:0;z-index:200;
+}
+.nav-logo{font-size:17px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;text-decoration:none;letter-spacing:-0.3px;}
+.logo-pip{width:8px;height:8px;border-radius:50%;background:#30B98A;box-shadow:0 0 0 3px rgba(48,185,138,0.2);}
+.nav-pills{display:flex;gap:2px;list-style:none;background:rgba(120,120,128,0.12);border-radius:12px;padding:3px;}
+.nav-pills a{font-size:13px;font-weight:500;color:var(--ink3);text-decoration:none;padding:5px 14px;border-radius:9px;transition:all 0.2s;}
+.nav-pills a.active{background:var(--bg2);color:var(--ink);box-shadow:var(--shadow-sm);}
+.nav-pills a:hover:not(.active){color:var(--ink);}
+.nav-avs{display:flex;}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:2px solid var(--bg);box-shadow:var(--shadow-sm);}
+.av-j{background:var(--blue-bg);color:var(--blue-t);}
+.av-m{background:var(--pink-bg);color:var(--pink-t);}
+.nav-avs .av:not(:first-child){margin-left:-8px;}
+
+/* Page */
+.page{max-width:900px;margin:0 auto;padding:28px 20px 56px;}
+.greeting{font-size:26px;font-weight:600;letter-spacing:-0.5px;margin-bottom:4px;}
+.sub{font-size:14px;color:var(--ink3);margin-bottom:28px;}
+.section-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink4);margin-bottom:10px;}
+
+/* Projects */
+.projects-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:32px;}
+.proj-card{background:var(--bg2);border-radius:var(--r-lg);padding:20px;text-decoration:none;display:block;box-shadow:var(--shadow-sm);transition:transform 0.18s,box-shadow 0.18s;}
+.proj-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+.proj-stripe{height:4px;border-radius:2px;margin-bottom:18px;}
+.proj-name{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:4px;letter-spacing:-0.2px;}
+.proj-stats{font-size:12px;color:var(--ink4);margin-bottom:14px;}
+.proj-avs{display:flex;gap:4px;}
+.av-xs{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:600;border:2px solid var(--bg2);}
+
+/* Task blocks */
+.task-block{background:var(--bg2);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);overflow:hidden;margin-bottom:16px;}
+.tb-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 14px;}
+.tb-who{font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px;color:var(--ink);}
+.count-pill{font-size:11px;font-weight:600;padding:4px 11px;border-radius:99px;background:var(--bg3);color:var(--ink3);}
+
+.sep{height:1px;background:var(--sep);}
+
+.task-row{display:flex;align-items:center;gap:14px;padding:14px 20px;transition:background 0.12s;}
+.task-row:hover{background:rgba(0,0,0,0.018);}
+.task-row.is-done{opacity:0.5;}
+
+.cb{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--sep-strong);flex-shrink:0;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;background:none;padding:0;}
+.cb:hover{border-color:var(--teal);}
+.cb.done{background:var(--green);border-color:var(--green);}
+.cb.done::after{content:'';display:block;width:10px;height:6px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px);}
+
+.ti{flex:1;min-width:0;}
+.tn{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:5px;letter-spacing:-0.1px;}
+.tn.done{color:var(--ink4);text-decoration:line-through;}
+.tm{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+
+.pill{font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;white-space:nowrap;}
+.pill-blue{background:var(--blue-bg);color:var(--blue-t);}
+.pill-pink{background:var(--pink-bg);color:var(--pink-t);}
+.pill-teal{background:var(--teal-bg);color:var(--teal-t);}
+.pill-amber{background:var(--amber-bg);color:var(--amber-t);}
+
+.due{font-size:12px;color:var(--ink4);}
+.due.late{color:var(--amber);font-weight:600;}
+
+.empty-state{text-align:center;padding:28px;font-size:13px;color:var(--ink4);}
+
+@keyframes popIn{from{opacity:0;transform:scale(0.97);}to{opacity:1;transform:scale(1);}}
+
+@media(max-width:600px){
+  .nav{padding:0 10px;height:50px;gap:6px;}
+  .nav-logo{font-size:0;gap:6px;}.nav-logo .logo-pip{display:block;}
+  .nav-pills{overflow-x:auto;-webkit-overflow-scrolling:touch;gap:1px;padding:2px;flex-shrink:1;min-width:0;scrollbar-width:none;}
+  .nav-pills::-webkit-scrollbar{display:none;}
+  .nav-pills a{font-size:11px;padding:4px 9px;white-space:nowrap;}
+  .nav-avs{display:none;}
+  .page{padding:16px 12px 32px;}
+  .greeting{font-size:22px;}
+  .sub{font-size:13px;margin-bottom:20px;}
+  .projects-row{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px;}
+  .proj-card{padding:14px;border-radius:14px;}
+  .proj-stripe{height:3px;margin-bottom:12px;}
+  .proj-name{font-size:14px;}
+  .proj-stats{font-size:11px;margin-bottom:10px;}
+  .task-row{padding:10px 14px;gap:10px;}
+  .tn{font-size:13px;}
+  .pill{font-size:10px;padding:2px 8px;}
+  .tb-head{padding:12px 14px 10px;}
+  .count-pill{font-size:10px;padding:3px 9px;}
+  .section-label{font-size:11px;}
+  #npf{padding:14px;border-radius:14px;}
+}
+@media(max-width:380px){
+  .projects-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="/"><span class="logo-pip"></span>Jack & Minke</a>
+  <ul class="nav-pills">
+    <li><a href="/" class="active">Dashboard</a></li>
+    <li><a href="/workouts">Workouts</a></li>
+    <li><a href="/meals">Meals</a></li>
+    <li><a href="/calendar">Calendar</a></li>
+    <li><a href="/finance">Finance</a></li>
+  </ul>
+  <div class="nav-avs">
+    <div class="av av-j" style="{{ 'opacity:1' if current_user.id == 'jack' else 'opacity:0.35' }}">J</div>
+    <div class="av av-m" style="{{ 'opacity:1' if current_user.id == 'minke' else 'opacity:0.35' }}">M</div>
+    <a href="/logout" style="font-size:12px;font-weight:500;color:var(--ink3);text-decoration:none;margin-left:10px;padding:5px 12px;border-radius:99px;background:rgba(120,120,128,0.12);transition:all 0.15s;" onmouseover="this.style.background='rgba(120,120,128,0.22)'" onmouseout="this.style.background='rgba(120,120,128,0.12)'">Sign out</a>
+  </div>
+</nav>
+
+<main class="page">
+
+  <div class="greeting">Good {% if now.hour < 12 %}morning{% elif now.hour < 18 %}afternoon{% else %}evening{% endif %}, {{ current_user.name }}</div>
+  <div class="sub">
+    {{ now.strftime('%A, %d %B %Y') }}
+    {% if overdue %}&middot; {{ overdue }} overdue{% endif %}
+    {% if due_week %}&middot; {{ due_week }} due this week{% endif %}
+  </div>
+
+  <!-- Projects -->
+  <div class="section-label">Projects</div>
+
+  <!-- New project form (hidden until triggered) -->
+  <div id="npf" style="display:none;background:var(--bg2);border-radius:var(--r-lg);box-shadow:0 0 0 2px var(--blue),var(--shadow);padding:20px;margin-bottom:14px;">
+    <form method="POST" action="/projects/new">
+      <div style="font-size:16px;font-weight:500;margin-bottom:16px;color:var(--ink);">New project</div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:11px;font-weight:600;color:var(--ink4);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Project name</label>
+        <input id="npf-name" type="text" name="name" required placeholder="e.g. Moving house"
+               style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--sep-strong);background:var(--bg3);font-size:14px;font-family:inherit;color:var(--ink);outline:none;"
+               onfocus="this.style.borderColor='var(--blue)';this.style.background='#fff'"
+               onblur="this.style.borderColor='var(--sep-strong)';this.style.background='var(--bg3)'">
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="font-size:11px;font-weight:600;color:var(--ink4);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Description (optional)</label>
+        <input type="text" name="description" placeholder="A short description…"
+               style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--sep-strong);background:var(--bg3);font-size:14px;font-family:inherit;color:var(--ink);outline:none;"
+               onfocus="this.style.borderColor='var(--blue)';this.style.background='#fff'"
+               onblur="this.style.borderColor='var(--sep-strong)';this.style.background='var(--bg3)'">
+      </div>
+      <div style="margin-bottom:18px;">
+        <label style="font-size:11px;font-weight:600;color:var(--ink4);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:8px;">Colour</label>
+        <div style="display:flex;gap:10px;">
+          {% for col, hexval in [('blue','#0A84FF'),('pink','#FF375F'),('teal','#30B98A'),('purple','#BF5AF2'),('amber','#FF9F0A')] %}
+          <label style="cursor:pointer;">
+            <input type="radio" name="color" value="{{ col }}" {{ 'checked' if col == 'blue' }} style="display:none;" onchange="updateSwatch()">
+            <div class="color-swatch" data-color="{{ col }}" style="width:28px;height:28px;border-radius:50%;background:{{ hexval }};border:3px solid transparent;transition:all 0.15s;"></div>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button type="submit" style="padding:8px 20px;border-radius:99px;border:none;background:var(--blue);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Create project</button>
+        <button type="button" onclick="closeNewProject()" style="padding:8px 16px;border-radius:99px;border:none;background:rgba(120,120,128,0.12);color:var(--ink2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="projects-row">
+    {% for p in projects %}
+    <a class="proj-card" href="/projects/{{ p.id }}">
+      <div class="proj-stripe" style="background:{{ hex.get(p.color, '#0A84FF') }}"></div>
+      <div class="proj-name">{{ p.name }}</div>
+      <div class="proj-stats">{{ p.open_count + p.done_count }} tasks &middot; {{ p.open_count }} open</div>
+      <div class="proj-avs">
+        <div class="av-xs av-j">J</div>
+        <div class="av-xs av-m">M</div>
+      </div>
+    </a>
+    {% endfor %}
+    <button onclick="openNewProject()" style="background:transparent;border-radius:var(--r-lg);border:1.5px dashed var(--sep-strong);padding:20px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-size:14px;font-weight:500;color:var(--ink4);transition:all 0.18s;font-family:inherit;width:100%;"
+      onmouseover="this.style.background='var(--bg2)';this.style.color='var(--ink)'"
+      onmouseout="this.style.background='transparent';this.style.color='var(--ink4)'">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      New project
+    </button>
+  </div>
+
+  <!-- Jack's tasks -->
+  <div class="section-label">Jack's tasks</div>
+  <div class="task-block">
+    <div class="tb-head">
+      <span class="tb-who">
+        <div class="av av-j" style="width:26px;height:26px;font-size:10px;">J</div>
+        Jack
+      </span>
+      <span class="count-pill">{{ jack_tasks|length }} open</span>
+    </div>
+
+    {% for t in jack_tasks %}
+    <div class="sep"></div>
+    <div class="task-row" id="tr-{{ t.id }}">
+      <button class="cb" onclick="toggleTask({{ t.id }}, this)"></button>
+      <div class="ti">
+        <div class="tn" id="tn-{{ t.id }}">{{ t.name }}</div>
+        <div class="tm">
+          <span class="pill pill-{{ t.project.color }}">{{ t.project.name }}</span>
+          {% if t.due_label %}
+          <span class="due {{ 'late' if t.is_overdue }}">{{ t.due_label }}</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="av av-j" style="width:24px;height:24px;font-size:9px;flex-shrink:0;">J</div>
+    </div>
+    {% endfor %}
+
+    {% for t in jack_done %}
+    <div class="sep"></div>
+    <div class="task-row is-done">
+      <button class="cb done" onclick="toggleTask({{ t.id }}, this)"></button>
+      <div class="ti">
+        <div class="tn done">{{ t.name }}</div>
+        <div class="tm">
+          <span class="pill pill-{{ t.project.color }}">{{ t.project.name }}</span>
+          <span class="due">{{ t.due_label }}</span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    {% if not jack_tasks and not jack_done %}
+    <div class="sep"></div>
+    <div class="empty-state">No tasks for Jack yet.</div>
+    {% endif %}
+  </div>
+
+  <!-- Minke's tasks -->
+  <div class="section-label">Minke's tasks</div>
+  <div class="task-block">
+    <div class="tb-head">
+      <span class="tb-who">
+        <div class="av av-m" style="width:26px;height:26px;font-size:10px;">M</div>
+        Minke
+      </span>
+      <span class="count-pill">{{ minke_tasks|length }} open</span>
+    </div>
+
+    {% for t in minke_tasks %}
+    <div class="sep"></div>
+    <div class="task-row" id="tr-{{ t.id }}">
+      <button class="cb" onclick="toggleTask({{ t.id }}, this)"></button>
+      <div class="ti">
+        <div class="tn" id="tn-{{ t.id }}">{{ t.name }}</div>
+        <div class="tm">
+          <span class="pill pill-{{ t.project.color }}">{{ t.project.name }}</span>
+          {% if t.due_label %}
+          <span class="due {{ 'late' if t.is_overdue }}">{{ t.due_label }}</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="av av-m" style="width:24px;height:24px;font-size:9px;flex-shrink:0;">M</div>
+    </div>
+    {% endfor %}
+
+    {% for t in minke_done %}
+    <div class="sep"></div>
+    <div class="task-row is-done">
+      <button class="cb done" onclick="toggleTask({{ t.id }}, this)"></button>
+      <div class="ti">
+        <div class="tn done">{{ t.name }}</div>
+        <div class="tm">
+          <span class="pill pill-{{ t.project.color }}">{{ t.project.name }}</span>
+          <span class="due">{{ t.due_label }}</span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    {% if not minke_tasks and not minke_done %}
+    <div class="sep"></div>
+    <div class="empty-state">No tasks for Minke yet.</div>
+    {% endif %}
+  </div>
+
+  <!-- Finance summary -->
+  {% if total_estimate > 0 or total_actual > 0 %}
+  <div class="section-label" style="margin-top:8px;">Finance</div>
+  <div class="task-block" style="margin-bottom:0;">
+    <div class="tb-head">
+      <span style="font-size:14px;font-weight:600;color:var(--ink);">Overall spend</span>
+      <a href="/finance" style="font-size:12px;font-weight:500;color:var(--blue);text-decoration:none;">Full breakdown →</a>
+    </div>
+    <div style="padding:16px 20px 20px;">
+      <!-- Totals -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;">
+        <div style="background:var(--bg3);border-radius:12px;padding:14px;">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink4);margin-bottom:6px;">Est. remaining</div>
+          <div style="font-size:22px;font-weight:600;letter-spacing:-0.5px;color:var(--ink);">€{{ '%.0f' | format(total_estimate) }}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:12px;padding:14px;">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink4);margin-bottom:6px;">Spent</div>
+          <div style="font-size:22px;font-weight:600;letter-spacing:-0.5px;color:var(--ink);">€{{ '%.0f' | format(total_actual) }}</div>
+        </div>
+        {% set variance = total_actual - total_estimate %}
+        <div style="background:var(--bg3);border-radius:12px;padding:14px;">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink4);margin-bottom:6px;">Variance</div>
+          <div style="font-size:22px;font-weight:600;letter-spacing:-0.5px;color:{{ 'var(--red)' if variance > 0 else 'var(--green)' if variance < 0 else 'var(--ink)' }};">
+            {{ '+' if variance > 0 else '' }}€{{ '%.0f' | format(variance) }}
+          </div>
+        </div>
+      </div>
+      <!-- Mini bar chart per project -->
+      {% set max_val = namespace(v=1) %}
+      {% for p in projects %}
+        {% if p.total_estimate_remaining > max_val.v %}{% set max_val.v = p.total_estimate_remaining %}{% endif %}
+        {% if p.total_actual   > max_val.v %}{% set max_val.v = p.total_actual   %}{% endif %}
+      {% endfor %}
+      {% for p in projects %}
+      {% if p.total_estimate_remaining > 0 or p.total_actual > 0 %}
+      {% set col = hex.get(p.color, '#0A84FF') %}
+      {% set est_pct = (p.total_estimate_remaining / max_val.v * 100) if max_val.v > 0 else 0 %}
+      {% set act_pct = (p.total_actual   / max_val.v * 100) if max_val.v > 0 else 0 %}
+      <div style="display:grid;grid-template-columns:130px 1fr 80px;align-items:center;gap:10px;margin-bottom:10px;">
+        <div style="font-size:13px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.name }}</div>
+        <div style="height:22px;background:var(--bg3);border-radius:6px;position:relative;overflow:hidden;">
+          <div style="height:100%;border-radius:6px;background:{{ col }};opacity:0.3;position:absolute;top:0;left:0;width:{{ '%.1f' | format(est_pct) }}%;"></div>
+          <div style="height:100%;border-radius:6px;background:{{ col }};position:absolute;top:0;left:0;width:{{ '%.1f' | format(act_pct) }}%;"></div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:12px;color:var(--ink4);">€{{ '%.0f' | format(p.total_estimate_remaining) }}</div>
+          <div style="font-size:13px;font-weight:600;color:var(--ink);">€{{ '%.0f' | format(p.total_actual) }}</div>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</main>
+
+<script>
+function toggleTask(id, btn) {
+  fetch('/tasks/' + id + '/toggle', { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      btn.classList.toggle('done', data.done);
+      const row = document.getElementById('tr-' + id);
+      const tn  = document.getElementById('tn-' + id);
+      if (row) row.classList.toggle('is-done', data.done);
+      if (tn)  tn.classList.toggle('done', data.done);
+    });
+}
+
+function openNewProject() {
+  const f = document.getElementById('npf');
+  f.style.display = 'block';
+  f.style.animation = 'popIn 0.2s cubic-bezier(0.34,1.4,0.64,1)';
+  document.getElementById('npf-name').focus();
+  f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  updateSwatch();
+}
+
+function closeNewProject() {
+  document.getElementById('npf').style.display = 'none';
+}
+
+function updateSwatch() {
+  document.querySelectorAll('.color-swatch').forEach(sw => {
+    const radio = sw.parentElement.querySelector('input[type=radio]');
+    sw.style.border = radio.checked ? '3px solid var(--ink)' : '3px solid transparent';
+    sw.style.transform = radio.checked ? 'scale(1.15)' : 'scale(1)';
+  });
+}
+
+// Update swatches when a colour is clicked
+document.addEventListener('change', function(e) {
+  if (e.target.name === 'color') updateSwatch();
+});
+</script>
+
+</body>
+</html>

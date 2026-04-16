@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jack & Minke — Workout Session</title>
+<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F2F2F7; --bg2:#FFFFFF; --bg3:#F2F2F7;
+  --sep:rgba(60,60,67,0.12); --sep-strong:rgba(60,60,67,0.22);
+  --ink:#1C1C1E; --ink2:#3A3A3C; --ink3:#636366; --ink4:#AEAEB2;
+  --blue:#0A84FF; --blue-bg:#E8F2FF; --blue-t:#004FAD;
+  --pink:#FF375F; --pink-bg:#FFF0F3; --pink-t:#9B1030;
+  --teal:#30B98A; --teal-bg:#E6F8F2; --teal-t:#0E6648;
+  --amber:#FF9F0A; --amber-bg:#FFF5E6; --amber-t:#7A4400;
+  --green:#34C759; --green-bg:#E9FAF0; --green-t:#1A6B32;
+  --purple:#BF5AF2; --purple-bg:#F5EEFF; --purple-t:#6B1FA8;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow:0 2px 8px rgba(0,0,0,0.08),0 1px 3px rgba(0,0,0,0.05);
+  --r:14px; --r-lg:20px;
+}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px;-webkit-font-smoothing:antialiased;}
+.nav{background:rgba(242,242,247,0.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--sep);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:200;}
+.nav-logo{font-size:17px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;text-decoration:none;letter-spacing:-0.3px;}
+.logo-pip{width:8px;height:8px;border-radius:50%;background:#30B98A;box-shadow:0 0 0 3px rgba(48,185,138,0.2);}
+.nav-pills{display:flex;gap:2px;list-style:none;background:rgba(120,120,128,0.12);border-radius:12px;padding:3px;}
+.nav-pills a{font-size:13px;font-weight:500;color:var(--ink3);text-decoration:none;padding:5px 14px;border-radius:9px;transition:all 0.2s;}
+.nav-pills a.active{background:var(--bg2);color:var(--ink);box-shadow:var(--shadow-sm);}
+.nav-pills a:hover:not(.active){color:var(--ink);}
+
+.page{max-width:700px;margin:0 auto;padding:24px 20px 56px;}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--blue);text-decoration:none;margin-bottom:16px;}
+.back-link:hover{text-decoration:underline;}
+.session-title{font-size:24px;font-weight:600;letter-spacing:-0.5px;margin-bottom:4px;}
+.session-meta{font-size:14px;color:var(--ink3);margin-bottom:24px;}
+
+.card{background:var(--bg2);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);overflow:hidden;margin-bottom:16px;}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 14px;}
+.card-label{font-size:14px;font-weight:600;color:var(--ink);}
+.sep{height:1px;background:var(--sep);}
+
+.set-row{display:grid;grid-template-columns:50px 1fr 80px 80px 50px;align-items:center;gap:8px;padding:10px 20px;font-size:13px;}
+.set-row:hover{background:rgba(0,0,0,0.018);}
+.set-num{font-weight:600;color:var(--ink4);font-size:12px;}
+.set-ex{font-weight:500;color:var(--ink);}
+.set-val{color:var(--ink2);text-align:center;}
+.set-del{border:none;background:none;color:var(--ink4);cursor:pointer;font-size:16px;text-align:center;padding:4px;}
+.set-del:hover{color:var(--pink);}
+.set-header{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink4);padding:8px 20px;display:grid;grid-template-columns:50px 1fr 80px 80px 50px;gap:8px;}
+
+/* Add set form */
+.add-form{padding:14px 20px;display:flex;gap:8px;flex-wrap:wrap;align-items:end;}
+.add-form select,.add-form input{padding:8px 10px;border-radius:10px;border:1.5px solid var(--sep-strong);background:var(--bg3);font-size:13px;font-family:inherit;color:var(--ink);outline:none;}
+.add-form select:focus,.add-form input:focus{border-color:var(--blue);background:#fff;}
+.add-form select{flex:1;min-width:140px;}
+.add-form input{width:70px;}
+.btn-add{padding:8px 16px;border-radius:99px;border:none;background:var(--teal);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.btn-add:hover{opacity:0.9;}
+
+.btn-danger{padding:8px 16px;border-radius:99px;border:none;background:var(--pink);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+.empty-state{text-align:center;padding:28px;font-size:13px;color:var(--ink4);}
+
+@media(max-width:600px){
+  .nav{padding:0 10px;height:50px;gap:6px;}
+  .nav-logo{font-size:0;gap:6px;}.nav-logo .logo-pip{display:block;}
+  .nav-pills{overflow-x:auto;-webkit-overflow-scrolling:touch;gap:1px;padding:2px;flex-shrink:1;min-width:0;scrollbar-width:none;}
+  .nav-pills::-webkit-scrollbar{display:none;}
+  .nav-pills a{font-size:11px;padding:4px 9px;white-space:nowrap;}
+  .page{padding:14px 10px 40px;}
+  .session-title{font-size:20px;}
+  .session-meta{font-size:13px;margin-bottom:18px;}
+  .set-row{grid-template-columns:36px 1fr 56px 56px 32px;gap:5px;padding:8px 12px;font-size:12px;}
+  .set-header{grid-template-columns:36px 1fr 56px 56px 32px;gap:5px;padding:6px 12px;}
+  .add-form{flex-direction:column;padding:10px 12px;gap:6px;}
+  .add-form select,.add-form input{width:100%;}
+  .card-head{padding:12px 14px 10px;}
+  .btn-add{width:100%;}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="/"><span class="logo-pip"></span>Jack & Minke</a>
+  <ul class="nav-pills">
+    <li><a href="/">Dashboard</a></li>
+    <li><a href="/workouts" class="active">Workouts</a></li>
+    <li><a href="/meals">Meals</a></li>
+    <li><a href="/calendar">Calendar</a></li>
+    <li><a href="/finance">Finance</a></li>
+  </ul>
+</nav>
+
+<main class="page">
+  <a href="/workouts" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 3L5 7l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Back to Workouts
+  </a>
+
+  <div class="session-title">{{ session.title or 'Workout' }}</div>
+  <div class="session-meta">{{ session.session_date.strftime('%A, %d %B %Y') }} · {{ session.user_id|capitalize }}{% if session.notes %} · {{ session.notes }}{% endif %}</div>
+
+  <!-- Sets logged -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-label">Sets</span>
+      <span style="font-size:12px;color:var(--ink4);">{{ session.sets|length }} total</span>
+    </div>
+    <div class="sep"></div>
+
+    {% if session.sets %}
+    <div class="set-header">
+      <span>Set</span><span>Exercise</span><span style="text-align:center;">Weight</span><span style="text-align:center;">Reps</span><span></span>
+    </div>
+
+    {% set current_ex = namespace(id=0) %}
+    {% for ws in session.sets %}
+    {% if ws.exercise_id != current_ex.id %}
+      {% set current_ex.id = ws.exercise_id %}
+      <div class="sep"></div>
+    {% endif %}
+    <div class="set-row">
+      <span class="set-num">#{{ ws.set_number }}</span>
+      <span class="set-ex">{{ ws.exercise.name }}</span>
+      <span class="set-val">{{ '%.1f'|format(ws.weight_kg) }} kg</span>
+      <span class="set-val">{{ ws.reps }} reps</span>
+      <form method="POST" action="/workout-sets/{{ ws.id }}/delete" style="margin:0;">
+        <button type="submit" class="set-del" title="Delete set">×</button>
+      </form>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">No sets logged yet — add your first set below.</div>
+    {% endif %}
+  </div>
+
+  <!-- Add set -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-label">Add set</span>
+    </div>
+    <div class="sep"></div>
+    <form method="POST" action="/workout-sessions/{{ session.id }}/add-set" class="add-form">
+      <select name="exercise_id" required>
+        <option value="">Choose exercise…</option>
+        {% set current_group = namespace(name='') %}
+        {% for ex in exercises %}
+          {% if ex.muscle_group != current_group.name %}
+            {% if current_group.name %}</optgroup>{% endif %}
+            <optgroup label="{{ ex.muscle_group or 'Other' }}">
+            {% set current_group.name = ex.muscle_group %}
+          {% endif %}
+          <option value="{{ ex.id }}">{{ ex.name }}</option>
+        {% endfor %}
+        {% if exercises %}</optgroup>{% endif %}
+      </select>
+      <input type="number" name="weight_kg" placeholder="kg" step="0.5" min="0" style="width:70px;">
+      <input type="number" name="reps" placeholder="reps" min="0" style="width:70px;">
+      <input type="number" name="rpe" placeholder="RPE" step="0.5" min="1" max="10" style="width:70px;">
+      <button type="submit" class="btn-add">+ Add set</button>
+    </form>
+  </div>
+
+  <!-- Delete session -->
+  <div style="margin-top:24px;text-align:right;">
+    <form method="POST" action="/workout-sessions/{{ session.id }}/delete" onsubmit="return confirm('Delete this entire session?')">
+      <button type="submit" class="btn-danger">Delete session</button>
+    </form>
+  </div>
+
+</main>
+</body>
+</html>

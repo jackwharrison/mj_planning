@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jack & Minke — {{ project.name }}</title>
+<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F2F2F7;--bg2:#FFFFFF;--bg3:#F2F2F7;
+  --sep:rgba(60,60,67,0.12);--sep-strong:rgba(60,60,67,0.22);
+  --ink:#1C1C1E;--ink2:#3A3A3C;--ink3:#636366;--ink4:#AEAEB2;
+  --blue:#0A84FF;--blue-bg:#E8F2FF;--blue-t:#004FAD;
+  --pink:#FF375F;--pink-bg:#FFF0F3;--pink-t:#9B1030;
+  --teal:#30B98A;--teal-bg:#E6F8F2;--teal-t:#0E6648;
+  --amber:#FF9F0A;--amber-bg:#FFF5E6;--amber-t:#7A4400;
+  --green:#34C759;--green-bg:#E9FAF0;--green-t:#1A6B32;
+  --red:#FF3B30;--red-bg:#FFF0EF;--red-t:#9B0E08;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow:0 2px 8px rgba(0,0,0,0.08),0 1px 3px rgba(0,0,0,0.05);
+  --r:14px;--r-lg:20px;
+}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px;-webkit-font-smoothing:antialiased;}
+
+/* Nav */
+.nav{background:rgba(242,242,247,0.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--sep);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:200;}
+.nav-logo{font-size:17px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;text-decoration:none;letter-spacing:-0.3px;white-space:nowrap;}
+.logo-pip{width:8px;height:8px;border-radius:50%;background:#30B98A;box-shadow:0 0 0 3px rgba(48,185,138,0.2);flex-shrink:0;}
+.nav-pills{display:flex;gap:2px;list-style:none;background:rgba(120,120,128,0.12);border-radius:12px;padding:3px;}
+.nav-pills a{font-size:13px;font-weight:500;color:var(--ink3);text-decoration:none;padding:5px 14px;border-radius:9px;transition:all 0.2s;}
+.nav-pills a.active{background:var(--bg2);color:var(--ink);box-shadow:var(--shadow-sm);}
+.nav-pills a:hover:not(.active){color:var(--ink);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-user-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;box-shadow:var(--shadow-sm);}
+.signout-btn{font-size:12px;font-weight:500;color:var(--ink3);text-decoration:none;padding:5px 12px;border-radius:99px;background:rgba(120,120,128,0.12);transition:all 0.15s;white-space:nowrap;}
+.signout-btn:hover{background:rgba(120,120,128,0.22);}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:2px solid var(--bg2);flex-shrink:0;}
+.av-j{background:var(--blue-bg);color:var(--blue-t);}
+.av-m{background:var(--pink-bg);color:var(--pink-t);}
+.av-active{outline:2px solid var(--ink);outline-offset:1px;}
+
+@media(max-width:600px){
+  .nav{padding:0 10px;height:50px;gap:6px;}
+  .nav-logo{font-size:0;gap:6px;}.nav-logo .logo-pip{display:block;}
+  .nav-pills{overflow-x:auto;-webkit-overflow-scrolling:touch;gap:1px;padding:2px;flex-shrink:1;min-width:0;scrollbar-width:none;}
+  .nav-pills::-webkit-scrollbar{display:none;}
+  .nav-pills a{font-size:11px;padding:4px 9px;white-space:nowrap;}
+  .signout-btn{display:none;}
+}
+
+/* Project hero */
+.proj-hero{background:var(--bg2);border-bottom:1px solid var(--sep);padding:18px 24px 16px;}
+.back{font-size:13px;font-weight:500;color:var(--blue);text-decoration:none;display:inline-flex;align-items:center;gap:5px;margin-bottom:12px;transition:opacity 0.15s;}
+.back:hover{opacity:0.7;}
+.proj-title-row{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+.proj-col-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.proj-title{font-size:22px;font-weight:600;color:var(--ink);letter-spacing:-0.4px;}
+.proj-subtitle{font-size:13px;color:var(--ink4);margin-bottom:14px;padding-left:22px;}
+.proj-subtitle span{color:var(--ink4);}
+
+/* Avatar filter buttons */
+.avatar-filter-row{display:flex;gap:6px;margin-bottom:14px;padding-left:0;}
+.av-filter-btn{display:flex;align-items:center;gap:6px;padding:5px 12px 5px 6px;border-radius:99px;border:1.5px solid var(--sep-strong);background:transparent;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;color:var(--ink3);transition:all 0.15s;}
+.av-filter-btn:hover{background:var(--bg3);color:var(--ink);}
+.av-filter-btn.active{background:var(--ink);border-color:var(--ink);color:#fff;}
+.av-filter-btn.active .av-xs{border-color:var(--ink);}
+
+/* Text-only action buttons */
+.btn-text-warn{background:none;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;color:var(--amber-t);padding:5px 10px;border-radius:8px;transition:background 0.15s;}
+.btn-text-warn:hover{background:var(--amber-bg);}
+.btn-text-danger{background:none;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;color:var(--red-t);padding:5px 10px;border-radius:8px;transition:background 0.15s;}
+.btn-text-danger:hover{background:var(--red-bg);}
+.av-xs{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;border:2px solid var(--bg2);}
+.pill{font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;white-space:nowrap;}
+.pill-blue{background:var(--blue-bg);color:var(--blue-t);}
+.pill-green{background:var(--green-bg);color:var(--green-t);}
+.pill-gray{background:var(--bg3);color:var(--ink3);}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:99px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.18s;font-family:inherit;text-decoration:none;}
+.btn-primary{background:var(--blue);color:#fff;}
+.btn-primary:hover{background:#0077ED;}
+.btn-ghost{background:rgba(120,120,128,0.12);color:var(--ink2);}
+.btn-ghost:hover{background:rgba(120,120,128,0.2);}
+.btn-danger{background:var(--red-bg);color:var(--red-t);}
+.btn-danger:hover{background:#FFD9D7;}
+.btn-warn{background:var(--amber-bg);color:var(--amber-t);}
+.btn-warn:hover{background:#FAE5B5;}
+.btn-sm{padding:6px 14px;font-size:12px;}
+
+/* Finance strip */
+.fin-strip{background:var(--bg3);border-bottom:1px solid var(--sep);padding:12px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.fin-item{display:flex;flex-direction:column;gap:2px;}
+.fin-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink4);}
+.fin-val{font-size:16px;font-weight:600;color:var(--ink);}
+.fin-divider{width:1px;height:32px;background:var(--sep-strong);flex-shrink:0;}
+.fin-link{font-size:12px;font-weight:500;color:var(--blue);text-decoration:none;margin-left:auto;}
+.fin-link:hover{text-decoration:underline;}
+
+/* Page */
+.page{max-width:700px;margin:0 auto;padding:24px 20px 64px;}
+.section-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink4);margin-bottom:10px;}
+
+/* New task form */
+.new-task-wrap{background:var(--bg2);border-radius:var(--r-lg);box-shadow:0 0 0 2px var(--blue),var(--shadow);padding:20px;margin-bottom:16px;display:none;}
+.new-task-wrap.open{display:block;animation:popIn 0.2s cubic-bezier(0.34,1.4,0.64,1);}
+@keyframes popIn{from{opacity:0;transform:scale(0.97);}to{opacity:1;transform:scale(1);}}
+.task-name-input{width:100%;border:none;outline:none;padding:0;font-size:16px;font-weight:500;font-family:inherit;color:var(--ink);background:transparent;margin-bottom:16px;}
+.task-name-input::placeholder{color:var(--ink4);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
+@media(max-width:540px){.form-grid{grid-template-columns:1fr 1fr;}}
+.ff label{font-size:11px;font-weight:600;color:var(--ink4);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:4px;}
+.ff select,.ff input[type=date],.ff input[type=number]{width:100%;padding:8px 11px;border-radius:10px;border:1px solid var(--sep-strong);background:var(--bg3);font-size:13px;font-family:inherit;color:var(--ink);outline:none;-webkit-appearance:none;appearance:none;transition:border-color 0.15s;}
+.ff select:focus,.ff input:focus{border-color:var(--blue);background:#fff;}
+.form-actions{display:flex;gap:8px;}
+
+/* Task cards */
+.task-card{background:var(--bg2);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);margin-bottom:8px;overflow:hidden;transition:box-shadow 0.18s;}
+.task-card:hover{box-shadow:var(--shadow);}
+.tc-top{display:flex;align-items:center;gap:12px;padding:14px 16px;}
+
+.cb{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--sep-strong);flex-shrink:0;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;background:none;padding:0;}
+.cb:hover{border-color:var(--teal);}
+.cb.done{background:var(--green);border-color:var(--green);}
+.cb.done::after{content:'';display:block;width:10px;height:6px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px);}
+
+.tc-body{flex:1;min-width:0;}
+.tc-name{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:5px;line-height:1.35;}
+.tc-name.done{color:var(--ink4);text-decoration:line-through;}
+.tc-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.due{font-size:12px;color:var(--ink4);}
+.due.late{color:var(--amber);font-weight:600;}
+.hint{font-size:12px;color:var(--blue);font-weight:500;}
+.cost-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--green-bg);color:var(--green-t);}
+.cost-badge.est{background:var(--bg3);color:var(--ink3);}
+
+.tc-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.expand-btn{font-size:12px;font-weight:500;color:var(--ink4);padding:5px 12px;border-radius:99px;background:var(--bg3);border:none;cursor:pointer;transition:all 0.15s;font-family:inherit;display:flex;align-items:center;gap:4px;}
+.expand-btn:hover{background:rgba(120,120,128,0.18);color:var(--ink);}
+.expand-btn svg{transition:transform 0.2s;}
+.expand-btn.open svg{transform:rotate(180deg);}
+.del-btn{width:26px;height:26px;border-radius:50%;border:none;background:none;cursor:pointer;color:var(--ink4);font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;padding:0;line-height:1;}
+.del-btn:hover{background:var(--red-bg);color:var(--red-t);}
+
+/* Detail panel */
+.tc-detail{display:none;border-top:1px solid var(--sep);}
+.tc-detail.open{display:block;animation:slideDown 0.18s ease;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+.detail-sec{padding:14px 16px;}
+.detail-sec+.detail-sec{border-top:1px solid var(--sep);}
+.detail-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink4);margin-bottom:10px;}
+
+/* Links */
+.link-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;background:var(--bg3);margin-bottom:6px;transition:background 0.12s;}
+.link-row:hover{background:rgba(0,0,0,0.04);}
+.link-fav{width:30px;height:30px;border-radius:8px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--blue-t);flex-shrink:0;}
+.link-body{flex:1;min-width:0;}
+.link-title{font-size:13px;font-weight:500;color:var(--blue);text-decoration:none;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.link-title:hover{text-decoration:underline;}
+.link-sub{font-size:11px;color:var(--ink4);margin-top:1px;}
+.link-note{font-size:12px;color:var(--ink3);margin-top:2px;}
+.add-link-row{display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap;}
+.link-input{flex:1;min-width:120px;padding:9px 12px;border-radius:10px;border:1px solid var(--sep-strong);background:var(--bg3);font-size:13px;font-family:inherit;color:var(--ink);outline:none;transition:border-color 0.15s;}
+.link-input:focus{border-color:var(--blue);background:#fff;}
+
+/* Files */
+.file-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;background:var(--bg3);margin-bottom:6px;}
+.file-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;background:var(--red-bg);color:var(--red-t);}
+.file-body{flex:1;min-width:0;}
+.file-name{font-size:13px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.file-meta{font-size:11px;color:var(--ink4);margin-top:2px;}
+.upload-zone{border:1.5px dashed var(--sep-strong);border-radius:12px;padding:13px;text-align:center;font-size:13px;color:var(--ink4);font-weight:500;transition:all 0.15s;position:relative;margin-top:4px;cursor:pointer;}
+.upload-zone:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-bg);}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+
+/* Cost */
+.cost-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+.cost-input-wrap{flex:1;min-width:100px;}
+.cost-input-wrap label{font-size:11px;font-weight:600;color:var(--ink4);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:4px;}
+.cost-input{width:100%;padding:8px 11px;border-radius:10px;border:1px solid var(--sep-strong);background:var(--bg3);font-size:13px;font-family:inherit;color:var(--ink);outline:none;transition:border-color 0.15s;}
+.cost-input:focus{border-color:var(--blue);background:#fff;}
+.save-indicator{font-size:12px;font-weight:500;}
+
+/* Comments */
+.comment-row{display:flex;gap:10px;margin-bottom:12px;align-items:flex-start;}
+.c-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;flex-shrink:0;margin-top:2px;}
+.c-bubble{background:var(--bg3);border-radius:4px 14px 14px 14px;padding:9px 13px;font-size:13px;color:var(--ink);line-height:1.5;}
+.c-time{font-size:11px;color:var(--ink4);margin-top:4px;padding-left:2px;}
+.c-input-row{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;}
+.c-input{flex:1;min-width:160px;padding:10px 14px;border-radius:14px;border:1px solid var(--sep-strong);background:var(--bg3);font-size:13px;font-family:inherit;color:var(--ink);outline:none;resize:none;transition:all 0.15s;min-height:42px;}
+.c-input:focus{border-color:var(--blue);background:#fff;min-height:80px;}
+
+/* Done section */
+.done-tasks .task-card{opacity:0.5;}
+.done-tasks .task-card:hover{opacity:0.75;box-shadow:var(--shadow);}
+.done-divider{margin:24px 0 10px;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.task-card:nth-child(1){animation:fadeUp 0.22s ease both 0.03s;}
+.task-card:nth-child(2){animation:fadeUp 0.22s ease both 0.06s;}
+.task-card:nth-child(3){animation:fadeUp 0.22s ease both 0.09s;}
+.task-card:nth-child(4){animation:fadeUp 0.22s ease both 0.12s;}
+
+@media(max-width:600px){.nav{padding:0 10px;height:50px;}.nav-right .signout-btn{display:none;}.proj-hero{padding:14px 12px;}.fin-strip{padding:10px 12px;}.page{padding:14px 10px 48px;}.tc-top{padding:10px 12px;gap:10px;}.tc-body{padding:10px 12px;}.detail-grid{grid-template-columns:1fr;gap:8px;}.task-name-input{font-size:15px;padding:10px 12px;}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="/"><span class="logo-pip"></span>Jack & Minke</a>
+  <ul class="nav-pills">
+    <li><a href="/">Dashboard</a></li>
+    <li><a href="/workouts">Workouts</a></li>
+    <li><a href="/meals">Meals</a></li>
+    <li><a href="/calendar">Calendar</a></li>
+    <li><a href="/finance">Finance</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="nav-user-av {{ 'av-j' if current_user.id == 'jack' else 'av-m' }}">{{ current_user.avatar }}</div>
+    <a href="/logout" class="signout-btn">Sign out</a>
+  </div>
+</nav>
+
+<div class="proj-hero">
+  <a class="back" href="/">
+    <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1L1 6.5L6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    All projects
+  </a>
+
+  <!-- Title row: dot + name + archive + delete -->
+  <div class="proj-title-row">
+    <div class="proj-col-dot" style="background:{{ hex.get(project.color,'#0A84FF') }}"></div>
+    <div class="proj-title">{{ project.name }}</div>
+    <div style="display:flex;gap:6px;margin-left:auto;flex-shrink:0;">
+      <form method="POST" action="/projects/{{ project.id }}/archive"
+            onsubmit="return confirm('Archive {{ project.name }}?')">
+        <button type="submit" class="btn-text-warn">Archive</button>
+      </form>
+      <form method="POST" action="/projects/{{ project.id }}/delete"
+            onsubmit="return confirm('Delete {{ project.name }} and all its tasks? This cannot be undone.')">
+        <button type="submit" class="btn-text-danger">Delete</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Subtitle: description + task counts -->
+  <div class="proj-subtitle">
+    {% if project.description %}{{ project.description }} &middot; {% endif %}
+    <span>{{ open_tasks|length }} open &middot; {{ done_tasks|length }} done</span>
+  </div>
+
+  <!-- Avatar filter row -->
+  <div class="avatar-filter-row">
+    <button class="av-filter-btn active" id="avf-all" onclick="filterTasks('all')">
+      <div class="av-xs av-j">J</div>
+      <div class="av-xs av-m">M</div>
+      <span>All</span>
+    </button>
+    <button class="av-filter-btn" id="avf-jack" onclick="filterTasks('jack')">
+      <div class="av-xs av-j">J</div>
+      <span>Jack</span>
+    </button>
+    <button class="av-filter-btn" id="avf-minke" onclick="filterTasks('minke')">
+      <div class="av-xs av-m">M</div>
+      <span>Minke</span>
+    </button>
+  </div>
+
+  <!-- Add task — own row -->
+  <button class="btn btn-primary btn-sm" onclick="openNewTask()" style="margin-top:2px;">
+    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1v9M1 5.5h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    Add task
+  </button>
+</div>
+
+<!-- Finance strip — no link, just numbers -->
+{% set p_actual = project.total_actual %}
+{% set p_est_rem = project.total_estimate_remaining %}
+{% if p_actual > 0 or p_est_rem > 0 %}
+<div class="fin-strip">
+  {% if p_actual > 0 %}
+  <div class="fin-item">
+    <div class="fin-label">Actual spent</div>
+    <div class="fin-val">€{{ '%.0f' | format(p_actual) }}</div>
+  </div>
+  <div class="fin-divider"></div>
+  {% endif %}
+  {% if p_est_rem > 0 %}
+  <div class="fin-item">
+    <div class="fin-label">Est. remaining</div>
+    <div class="fin-val">€{{ '%.0f' | format(p_est_rem) }}</div>
+  </div>
+  <div class="fin-divider"></div>
+  {% endif %}
+  <div class="fin-item">
+    <div class="fin-label">Total committed</div>
+    <div class="fin-val">€{{ '%.0f' | format(p_actual + p_est_rem) }}</div>
+  </div>
+</div>
+{% endif %}
+
+<main class="page">
+
+  <div class="new-task-wrap" id="ntf">
+    <form method="POST" action="/projects/{{ project.id }}/tasks/new">
+      <input class="task-name-input" id="nti" type="text" name="name" required placeholder="Task name…">
+      <div class="form-grid">
+        <div class="ff">
+          <label>Assign to</label>
+          <select name="assignee">
+            <option value="both">Jack & Minke</option>
+            <option value="jack">Jack</option>
+            <option value="minke">Minke</option>
+          </select>
+        </div>
+        <div class="ff">
+          <label>Due date</label>
+          <input type="date" name="due_date">
+        </div>
+        <div class="ff">
+          <label>Estimated (€)</label>
+          <input type="number" name="cost_estimate" step="1" min="0" placeholder="0">
+        </div>
+        <div class="ff">
+          <label>Actual (€)</label>
+          <input type="number" name="cost_actual" step="1" min="0" placeholder="0">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-sm">Save task</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="closeNewTask()">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  {% if open_tasks %}
+  <div class="section-label">Open · {{ open_tasks|length }}</div>
+  {% for t in open_tasks %}
+  <div class="task-card" id="task-{{ t.id }}" data-assignee="{{ t.assignee }}">
+    <div class="tc-top">
+      <button class="cb" onclick="toggleTask({{ t.id }}, this)"></button>
+      <div class="tc-body">
+        <div class="tc-name" id="tn-{{ t.id }}">{{ t.name }}</div>
+        <div class="tc-meta">
+          {% if t.assignee == 'jack' %}
+            <div class="av-xs av-j" style="width:18px;height:18px;font-size:7px;">J</div>
+            <span style="font-size:12px;font-weight:500;color:var(--ink2);">Jack</span>
+          {% elif t.assignee == 'minke' %}
+            <div class="av-xs av-m" style="width:18px;height:18px;font-size:7px;">M</div>
+            <span style="font-size:12px;font-weight:500;color:var(--ink2);">Minke</span>
+          {% else %}
+            <div class="av-xs" style="width:18px;height:18px;font-size:7px;background:var(--teal-bg);color:var(--teal-t);">JM</div>
+            <span style="font-size:12px;font-weight:500;color:var(--ink2);">Both</span>
+          {% endif %}
+          {% if t.due_label %}
+            <span class="pill {{ 'pill-amber' if t.is_overdue else 'pill-gray' }}" style="font-size:10px;padding:2px 8px;">{{ t.due_label }}</span>
+          {% endif %}
+          {% if t.cost_actual is not none %}
+            <span class="cost-badge">€{{ '%.0f' | format(t.cost_actual) }}</span>
+          {% elif t.cost_estimate is not none %}
+            <span class="cost-badge est">~€{{ '%.0f' | format(t.cost_estimate) }}</span>
+          {% endif %}
+          {% if t.links %}<span class="hint">{{ t.links|length }} link{{ 's' if t.links|length != 1 }}</span>{% endif %}
+          {% if t.files %}<span class="hint">{{ t.files|length }} file{{ 's' if t.files|length != 1 }}</span>{% endif %}
+          {% if t.comments %}<span style="font-size:12px;color:var(--ink4);">{{ t.comments|length }} comment{{ 's' if t.comments|length != 1 }}</span>{% endif %}
+        </div>
+      </div>
+      <div class="tc-right">
+        <button class="expand-btn" onclick="toggleDetail(this)">
+          Details
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="tc-detail">
+      <div class="detail-sec">
+        <div class="detail-label">Links</div>
+        {% for l in t.links %}
+        <div class="link-row">
+          <div class="link-fav">{{ l.favicon_letter }}</div>
+          <div class="link-body">
+            <a class="link-title" href="{{ l.url }}" target="_blank" rel="noopener">{{ l.title if l.title else l.domain }}</a>
+            <div class="link-sub">{{ l.domain }}</div>
+            {% if l.note %}<div class="link-note">{{ l.note }}</div>{% endif %}
+          </div>
+          <form method="POST" action="/links/{{ l.id }}/delete">
+            <button type="submit" class="del-btn" title="Remove">×</button>
+          </form>
+        </div>
+        {% endfor %}
+        <form method="POST" action="/tasks/{{ t.id }}/links/add" class="add-link-row">
+          <input class="link-input" type="url" name="url" placeholder="Paste a URL…">
+          <input class="link-input" type="text" name="title" placeholder="Label (optional)" style="max-width:130px;">
+          <button type="submit" class="btn btn-ghost btn-sm">Add</button>
+        </form>
+      </div>
+
+      <div class="detail-sec">
+        <div class="detail-label">Files</div>
+        {% for f in t.files %}
+        <div class="file-row">
+          <div class="file-icon">{{ f.ext }}</div>
+          <div class="file-body">
+            <div class="file-name">{{ f.filename }}</div>
+            <div class="file-meta">{{ f.size_label }} &middot; {{ f.uploaded_at.strftime('%d/%m/%Y') }}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="/files/{{ f.id }}/download">Download</a>
+          <form method="POST" action="/files/{{ f.id }}/delete">
+            <button type="submit" class="del-btn">×</button>
+          </form>
+        </div>
+        {% endfor %}
+        <form method="POST" action="/tasks/{{ t.id }}/files/upload" enctype="multipart/form-data">
+          <div class="upload-zone">
+            <input type="file" name="file">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin:0 auto 4px;display:block;"><path d="M7 1v8M4 4l3-3 3 3M1 11v1a1 1 0 001 1h10a1 1 0 001-1v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Attach a file
+          </div>
+        </form>
+      </div>
+
+      <div class="detail-sec">
+        <div class="detail-label">Cost</div>
+        <div class="cost-row">
+          <div class="cost-input-wrap">
+            <label>Estimated (€)</label>
+            <input type="number" class="cost-input" id="proj-est-{{ t.id }}" step="1" min="0"
+                   value="{{ '%.0f' | format(t.cost_estimate) if t.cost_estimate is not none else '' }}"
+                   placeholder="0">
+          </div>
+          <div class="cost-input-wrap">
+            <label>Actual (€)</label>
+            <input type="number" class="cost-input" id="proj-act-{{ t.id }}" step="1" min="0"
+                   value="{{ '%.0f' | format(t.cost_actual) if t.cost_actual is not none else '' }}"
+                   placeholder="0">
+          </div>
+          <button type="button" class="btn btn-primary btn-sm" onclick="saveProjCost({{ t.id }}, {{ project.id }})">Save</button>
+          <span id="proj-si-{{ t.id }}" class="save-indicator"></span>
+        </div>
+      </div>
+
+      <div class="detail-sec">
+        <div class="detail-label">Comments</div>
+        {% for c in t.comments %}
+        <div class="comment-row">
+          <div class="c-av {{ 'av-j' if c.author == 'jack' else 'av-m' }}">{{ 'J' if c.author == 'jack' else 'M' }}</div>
+          <div>
+            <div class="c-bubble">{{ c.body }}</div>
+            <div class="c-time">{{ 'Jack' if c.author == 'jack' else 'Minke' }} &middot; {{ c.time_label }}</div>
+          </div>
+        </div>
+        {% endfor %}
+        <form method="POST" action="/tasks/{{ t.id }}/comments/add" class="c-input-row">
+          <div class="c-av {{ 'av-j' if current_user.id == 'jack' else 'av-m' }}">{{ current_user.avatar }}</div>
+          <textarea class="c-input" name="body" placeholder="Add a comment…" rows="1"></textarea>
+          <button type="submit" class="btn btn-primary btn-sm">Send</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+  {% else %}
+  <div style="text-align:center;padding:40px 20px;color:var(--ink4);font-size:14px;">
+    No tasks yet —
+    <button onclick="openNewTask()" style="color:var(--blue);font-weight:600;background:none;border:none;cursor:pointer;font-size:14px;font-family:inherit;">add the first one</button>
+  </div>
+  {% endif %}
+
+  {% if done_tasks %}
+  <div class="done-divider">
+    <div class="section-label">Done · {{ done_tasks|length }}</div>
+  </div>
+  <div class="done-tasks">
+    {% for t in done_tasks %}
+    <div class="task-card">
+      <div class="tc-top">
+        <button class="cb done" onclick="toggleTask({{ t.id }}, this)"></button>
+        <div class="tc-body">
+          <div class="tc-name done">{{ t.name }}</div>
+          <div class="tc-meta">
+            {% if t.assignee == 'jack' %}
+              <div class="av-xs av-j" style="width:18px;height:18px;font-size:7px;">J</div>
+              <span style="font-size:12px;color:var(--ink4);">Jack</span>
+            {% elif t.assignee == 'minke' %}
+              <div class="av-xs av-m" style="width:18px;height:18px;font-size:7px;">M</div>
+              <span style="font-size:12px;color:var(--ink4);">Minke</span>
+            {% else %}
+              <div class="av-xs" style="width:18px;height:18px;font-size:7px;background:var(--teal-bg);color:var(--teal-t);">JM</div>
+              <span style="font-size:12px;color:var(--ink4);">Both</span>
+            {% endif %}
+            {% if t.done_at %}
+              <span style="font-size:12px;color:var(--ink4);">{{ t.done_at.strftime('%d/%m/%Y') }}</span>
+            {% endif %}
+            {% if t.cost_actual is not none %}
+              <span class="cost-badge">€{{ '%.0f' | format(t.cost_actual) }}</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="tc-right">
+          <form method="POST" action="/tasks/{{ t.id }}/delete"
+                onsubmit="return confirm('Delete this task?')">
+            <button type="submit" class="del-btn" title="Delete task">×</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</main>
+
+<script>
+function toggleTask(id, btn) {
+  fetch('/tasks/'+id+'/toggle', {method:'POST'})
+    .then(r=>r.json()).then(()=>location.reload());
+}
+
+function filterTasks(who) {
+  // Update button states
+  ['all','jack','minke'].forEach(w => {
+    document.getElementById('avf-'+w).classList.toggle('active', w === who);
+  });
+  // Show/hide task cards based on data-assignee
+  document.querySelectorAll('.task-card[data-assignee]').forEach(card => {
+    const a = card.dataset.assignee;
+    const show = who === 'all' || a === who || a === 'both';
+    card.style.display = show ? '' : 'none';
+  });
+}
+function toggleDetail(btn) {
+  const card=btn.closest('.task-card');
+  const detail=card.querySelector('.tc-detail');
+  const isOpen=detail.classList.toggle('open');
+  btn.classList.toggle('open', isOpen);
+}
+function openNewTask() {
+  const f=document.getElementById('ntf');
+  f.classList.add('open');
+  document.getElementById('nti').focus();
+  f.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function closeNewTask() { document.getElementById('ntf').classList.remove('open'); }
+
+function saveProjCost(tid, pid) {
+  const est = document.getElementById('proj-est-'+tid).value.trim();
+  const act = document.getElementById('proj-act-'+tid).value.trim();
+  const si  = document.getElementById('proj-si-'+tid);
+  const fd  = new FormData();
+  fd.append('cost_estimate', est);
+  fd.append('cost_actual',   act);
+  fetch('/tasks/'+tid+'/edit', {method:'POST', body:fd})
+    .then(r=>r.json())
+    .then(d=>{
+      if (!d.ok) throw new Error();
+      si.textContent='✓ Saved'; si.style.color='var(--green)';
+      setTimeout(()=>{si.textContent='';}, 2000);
+      // Refresh finance strip totals without full reload
+      refreshFinanceStrip(pid);
+    })
+    .catch(()=>{si.textContent='Error';si.style.color='var(--red)';});
+}
+
+function refreshFinanceStrip(pid) {
+  fetch('/projects/'+pid+'/finance_totals')
+    .then(r=>r.json())
+    .then(d=>{
+      const strip = document.querySelector('.fin-strip');
+      if (!strip) return;
+      // Simple reload of the strip values
+      location.reload();
+    });
+}
+</script>
+</body>
+</html>

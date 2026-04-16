@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jack & Minke — Edit Recipe</title>
+<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F2F2F7; --bg2:#FFFFFF; --bg3:#F2F2F7;
+  --sep:rgba(60,60,67,0.12); --sep-strong:rgba(60,60,67,0.22);
+  --ink:#1C1C1E; --ink2:#3A3A3C; --ink3:#636366; --ink4:#AEAEB2;
+  --blue:#0A84FF; --blue-bg:#E8F2FF; --blue-t:#004FAD;
+  --pink:#FF375F; --pink-bg:#FFF0F3; --pink-t:#9B1030;
+  --teal:#30B98A; --teal-bg:#E6F8F2; --teal-t:#0E6648;
+  --amber:#FF9F0A; --amber-bg:#FFF5E6; --amber-t:#7A4400;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow:0 2px 8px rgba(0,0,0,0.08),0 1px 3px rgba(0,0,0,0.05);
+  --r:14px; --r-lg:20px;
+}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px;-webkit-font-smoothing:antialiased;}
+
+.nav{background:rgba(242,242,247,0.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--sep);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:200;}
+.nav-logo{font-size:17px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;text-decoration:none;letter-spacing:-0.3px;}
+.logo-pip{width:8px;height:8px;border-radius:50%;background:#30B98A;box-shadow:0 0 0 3px rgba(48,185,138,0.2);}
+.nav-pills{display:flex;gap:2px;list-style:none;background:rgba(120,120,128,0.12);border-radius:12px;padding:3px;}
+.nav-pills a{font-size:13px;font-weight:500;color:var(--ink3);text-decoration:none;padding:5px 14px;border-radius:9px;transition:all 0.2s;}
+.nav-pills a.active{background:var(--bg2);color:var(--ink);box-shadow:var(--shadow-sm);}
+.nav-pills a:hover:not(.active){color:var(--ink);}
+
+.nav-burger{display:none;width:38px;height:38px;border-radius:10px;border:none;background:rgba(120,120,128,0.12);cursor:pointer;align-items:center;justify-content:center;padding:0;color:var(--ink2);flex-shrink:0;}
+.nav-burger:hover{background:rgba(120,120,128,0.2);}
+.nav-burger svg{width:18px;height:18px;}
+.drawer-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.38);z-index:400;opacity:0;transition:opacity 0.22s;}
+.drawer-bg.open{display:block;opacity:1;}
+.drawer{position:fixed;top:0;left:0;bottom:0;width:82%;max-width:300px;background:var(--bg2);z-index:401;transform:translateX(-100%);transition:transform 0.28s cubic-bezier(0.32,0.72,0,1);display:flex;flex-direction:column;box-shadow:4px 0 24px rgba(0,0,0,0.12);}
+.drawer.open{transform:translateX(0);}
+.drawer-head{padding:18px 20px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--sep);}
+.drawer-brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:600;color:var(--ink);letter-spacing:-0.3px;}
+.drawer-close{width:32px;height:32px;border-radius:50%;border:none;background:rgba(120,120,128,0.12);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink3);padding:0;}
+.drawer-nav{padding:12px 10px;display:flex;flex-direction:column;gap:2px;}
+.drawer-nav a{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:11px;font-size:15px;font-weight:500;color:var(--ink2);text-decoration:none;transition:background 0.15s;}
+.drawer-nav a:hover{background:var(--bg3);}
+.drawer-nav a.active{background:var(--teal-bg);color:var(--teal-t);font-weight:600;}
+.drawer-nav a svg{width:19px;height:19px;flex-shrink:0;opacity:0.85;}
+
+.page{max-width:720px;margin:0 auto;padding:24px 20px 56px;}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--blue);text-decoration:none;margin-bottom:16px;}
+.back-link:hover{text-decoration:underline;}
+.page-title{font-size:22px;font-weight:700;letter-spacing:-0.4px;margin-bottom:20px;}
+.card{background:var(--bg2);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);padding:20px;margin-bottom:16px;}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:14px;}
+.fg label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink4);}
+.input{padding:9px 12px;border-radius:10px;border:1.5px solid var(--sep-strong);background:var(--bg3);font-size:13px;font-family:inherit;color:var(--ink);outline:none;width:100%;}
+.input:focus{border-color:var(--blue);background:#fff;}
+.textarea{padding:10px 12px;border-radius:10px;border:1.5px solid var(--sep-strong);background:var(--bg3);font-size:13px;font-family:inherit;color:var(--ink);outline:none;width:100%;resize:vertical;min-height:80px;}
+.textarea:focus{border-color:var(--blue);background:#fff;}
+.btn{padding:9px 18px;border-radius:99px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.btn-primary{background:var(--teal);color:#fff;}
+.btn-primary:hover{opacity:0.9;}
+.btn-ghost{background:rgba(120,120,128,0.12);color:var(--ink2);}
+.btn-ghost:hover{background:rgba(120,120,128,0.22);}
+.btn-sm{padding:7px 14px;font-size:12px;}
+.section-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink4);margin-bottom:8px;margin-top:6px;}
+.ing-hint{font-size:12px;color:var(--ink4);margin-bottom:12px;line-height:1.5;}
+
+.ing-row{display:grid;grid-template-columns:1fr 70px 80px 30px;gap:6px;margin-bottom:6px;align-items:center;position:relative;}
+.ing-row input,.ing-row select{padding:8px 8px;border-radius:8px;border:1.5px solid var(--sep);background:var(--bg3);font-size:13px;font-family:inherit;color:var(--ink);outline:none;}
+.ing-row input:focus,.ing-row select:focus{border-color:var(--blue);background:#fff;}
+.ing-del{border:none;background:none;color:var(--ink4);cursor:pointer;font-size:16px;text-align:center;padding:0;}
+.ing-del:hover{color:var(--pink);}
+
+.ing-combo{position:relative;}
+.ing-combo-input{width:100%;}
+.ing-combo-input.matched{border-color:var(--teal)!important;background:var(--teal-bg)!important;}
+.ing-combo-badge{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:600;padding:2px 6px;border-radius:99px;background:var(--teal);color:#fff;pointer-events:none;letter-spacing:0.02em;}
+.ing-combo-badge.new{background:var(--amber);}
+.ing-combo-menu{position:absolute;top:calc(100% + 4px);left:0;min-width:100%;width:max(100%, 260px);z-index:50;background:var(--bg2);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.14),0 2px 6px rgba(0,0,0,0.06);max-height:240px;overflow-y:auto;padding:4px;display:none;}
+.ing-combo-menu.open{display:block;}
+.ing-combo-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--ink);}
+.ing-combo-item:hover,.ing-combo-item.active{background:var(--bg3);}
+.ing-combo-item .ici-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ing-combo-item .ici-meta{font-size:11px;color:var(--ink4);flex-shrink:0;}
+.ing-combo-item .ici-icon{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;}
+.ing-combo-item.create{color:var(--teal-t);font-weight:500;border-top:1px solid var(--sep);margin-top:2px;padding-top:10px;}
+.ing-combo-item.create .ici-icon{background:var(--teal-bg);color:var(--teal-t);}
+.ing-combo-empty{padding:12px;font-size:12px;color:var(--ink4);text-align:center;}
+
+.ing-add-btn{margin:8px 0 0;width:100%;padding:10px;border:1.5px dashed var(--sep-strong);background:transparent;color:var(--ink3);border-radius:10px;font-weight:500;cursor:pointer;font-family:inherit;font-size:13px;}
+.ing-add-btn:hover{border-color:var(--teal);color:var(--teal-t);background:var(--teal-bg);}
+
+@media(max-width:700px){
+  .nav{padding:0 10px;height:52px;gap:10px;justify-content:flex-start;}
+  .nav-burger{display:flex;}
+  .nav-logo{font-size:15px;flex:1;}
+  .nav-pills{display:none;}
+  .page{padding:16px 12px 40px;}
+  .page-title{font-size:20px;}
+  .card{padding:16px;border-radius:14px;}
+  .ing-row{grid-template-columns:1fr 60px 70px 32px;gap:5px;}
+  .ing-row input,.ing-row select{padding:9px 8px;font-size:13px;}
+  .btn{padding:11px 20px;font-size:14px;}
+}
+@media(max-width:380px){
+  .ing-row{grid-template-columns:1fr 52px 60px 28px;gap:4px;}
+  .ing-row input,.ing-row select{padding:8px 6px;font-size:12px;}
+}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <button class="nav-burger" type="button" onclick="openDrawer()" aria-label="Open menu">
+    <svg viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+  </button>
+  <a class="nav-logo" href="/"><span class="logo-pip"></span><span>Jack & Minke</span></a>
+  <ul class="nav-pills">
+    <li><a href="/">Dashboard</a></li>
+    <li><a href="/workouts">Workouts</a></li>
+    <li><a href="/meals" class="active">Meals</a></li>
+    <li><a href="/calendar">Calendar</a></li>
+    <li><a href="/finance">Finance</a></li>
+  </ul>
+</nav>
+
+<div class="drawer-bg" id="drawer-bg" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div class="drawer-brand"><span class="logo-pip"></span>Jack &amp; Minke</div>
+    <button class="drawer-close" type="button" onclick="closeDrawer()" aria-label="Close menu">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <nav class="drawer-nav">
+    <a href="/"><svg viewBox="0 0 20 20" fill="none"><path d="M3 10l7-6 7 6v7a1 1 0 0 1-1 1h-4v-5H8v5H4a1 1 0 0 1-1-1v-7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Dashboard</a>
+    <a href="/workouts"><svg viewBox="0 0 20 20" fill="none"><path d="M5 7v6M3 8v4M15 7v6M17 8v4M7 10h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Workouts</a>
+    <a href="/meals" class="active"><svg viewBox="0 0 20 20" fill="none"><path d="M4 3v7a2 2 0 0 0 2 2v5M6 3v5M8 3v5M14 3c-1.5 2-1.5 5 0 7v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Meals</a>
+    <a href="/calendar"><svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Calendar</a>
+    <a href="/finance"><svg viewBox="0 0 20 20" fill="none"><path d="M10 3v14M13.5 6.5c0-1.4-1.6-2-3.5-2s-3.5.8-3.5 2.2c0 3 7 1.8 7 4.8 0 1.4-1.6 2.2-3.5 2.2s-3.5-.6-3.5-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Finance</a>
+  </nav>
+</aside>
+
+<main class="page">
+  <a href="/meals#recipes" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 3L5 7l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Back to Recipes
+  </a>
+
+  <div class="page-title">Edit recipe</div>
+
+  <form method="POST" action="/recipes/{{ recipe.id }}/edit">
+    <div class="card">
+      <div class="fg">
+        <label>Recipe name</label>
+        <input class="input" type="text" name="name" required value="{{ recipe.name }}">
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div class="fg" style="flex:1;min-width:90px;"><label>Servings</label><input class="input" type="number" name="servings" value="{{ recipe.servings }}" min="1"></div>
+        <div class="fg" style="flex:1;min-width:90px;"><label>Prep (min)</label><input class="input" type="number" name="prep_mins" value="{{ recipe.prep_mins }}" min="0"></div>
+        <div class="fg" style="flex:1;min-width:90px;"><label>Cook (min)</label><input class="input" type="number" name="cook_mins" value="{{ recipe.cook_mins }}" min="0"></div>
+      </div>
+      <div class="fg">
+        <label>Tags (comma-separated)</label>
+        <input class="input" type="text" name="tags" value="{{ recipe.tags }}" placeholder="quick, pasta, vegetarian…">
+      </div>
+      <div class="fg">
+        <label>Source link (optional)</label>
+        <input class="input" type="url" name="source_url" value="{{ recipe.source_url or '' }}" placeholder="https://…">
+      </div>
+    </div>
+
+    <div class="section-label">Ingredients</div>
+    <div class="card">
+      <div class="ing-hint">Start typing — matching pantry items appear. New names get added to your pantry automatically.</div>
+      <div id="ing-list"></div>
+      <button type="button" class="ing-add-btn" onclick="addIngRow()">+ Add ingredient</button>
+    </div>
+
+    <div class="section-label">Instructions</div>
+    <div class="card">
+      <div class="fg" style="margin-bottom:0;">
+        <textarea class="textarea" name="instructions" rows="6">{{ recipe.instructions }}</textarea>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button type="submit" class="btn btn-primary">Save changes</button>
+      <a href="/meals#recipes" class="btn btn-ghost" style="text-decoration:none;display:inline-flex;align-items:center;">Cancel</a>
+    </div>
+  </form>
+</main>
+
+<script>
+function openDrawer(){document.getElementById('drawer').classList.add('open');document.getElementById('drawer-bg').classList.add('open');document.body.style.overflow='hidden';}
+function closeDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('drawer-bg').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
+
+const PANTRY_FOODS = [
+  {% for f in pantry %}{id:{{ f.id }},name:{{ f.name|tojson }},unit:{{ f.unit|tojson }},category:{{ (f.category or 'other')|tojson }},quantity:{{ f.quantity }}},{% endfor %}
+];
+const FOOD_CATEGORIES = [
+  {% for c in food_categories %}{key:{{ c.key|tojson }},label:{{ c.label|tojson }},icon:{{ c.icon|tojson }},color:{{ c.color|tojson }}},{% endfor %}
+];
+const UNITS = ['pcs','g','kg','ml','l','cups','tbsp','tsp'];
+const CAT_ICONS = Object.fromEntries(FOOD_CATEGORIES.map(c => [c.key, c.icon]));
+
+let _rowCtr = 0;
+
+function addIngRow(preset) {
+  const list = document.getElementById('ing-list');
+  const row = document.createElement('div');
+  row.className = 'ing-row';
+  row.dataset.rowId = 'ing-' + (++_rowCtr);
+  row.innerHTML = `
+    <div class="ing-combo">
+      <input type="text" class="ing-combo-input" name="ing_name[]" placeholder="Start typing…" autocomplete="off" required>
+      <input type="hidden" name="ing_food_id[]" value="">
+      <span class="ing-combo-badge" style="display:none;"></span>
+      <div class="ing-combo-menu" role="listbox"></div>
+    </div>
+    <input type="number" name="ing_qty[]" step="0.5" min="0" placeholder="Qty">
+    <select name="ing_unit[]">${UNITS.map(u => '<option value="'+u+'">'+u+'</option>').join('')}</select>
+    <button type="button" class="ing-del" onclick="this.closest('.ing-row').remove()" aria-label="Remove">×</button>
+  `;
+  list.appendChild(row);
+  bindIngCombo(row);
+  if (preset) applyPreset(row, preset);
+  else row.querySelector('.ing-combo-input').focus();
+  return row;
+}
+
+function applyPreset(row, p){
+  row.querySelector('.ing-combo-input').value = p.name || '';
+  row.querySelector('input[name="ing_food_id[]"]').value = p.food_id || '';
+  row.querySelector('input[name="ing_qty[]"]').value = (p.qty != null ? p.qty : '');
+  if (p.unit) {
+    const unitSel = row.querySelector('select[name="ing_unit[]"]');
+    if (Array.from(unitSel.options).some(o => o.value === p.unit)) unitSel.value = p.unit;
+  }
+  if (p.food_id) markMatched(row);
+}
+
+function markMatched(row){
+  row.querySelector('.ing-combo-input').classList.add('matched');
+  const b = row.querySelector('.ing-combo-badge');
+  b.textContent = 'linked'; b.classList.remove('new'); b.style.display = 'block';
+}
+function markNew(row){
+  row.querySelector('.ing-combo-input').classList.remove('matched');
+  const b = row.querySelector('.ing-combo-badge');
+  b.textContent = 'new'; b.classList.add('new'); b.style.display = 'block';
+}
+function clearStatus(row){
+  row.querySelector('.ing-combo-input').classList.remove('matched');
+  row.querySelector('.ing-combo-badge').style.display = 'none';
+  row.querySelector('input[name="ing_food_id[]"]').value = '';
+}
+
+function bindIngCombo(row){
+  const input = row.querySelector('.ing-combo-input');
+  const menu  = row.querySelector('.ing-combo-menu');
+  const hidden = row.querySelector('input[name="ing_food_id[]"]');
+
+  const render = (items, query) => {
+    menu.innerHTML = '';
+    const q = (query || '').trim();
+    const qLower = q.toLowerCase();
+    if (!items.length && !q) menu.innerHTML = '<div class="ing-combo-empty">No pantry items yet — type to add one.</div>';
+    items.forEach((f, idx) => {
+      const it = document.createElement('div');
+      it.className = 'ing-combo-item' + (idx === 0 ? ' active' : '');
+      const icon = CAT_ICONS[f.category] || CAT_ICONS.other;
+      it.innerHTML = '<span class="ici-icon">'+icon+'</span>'
+        + '<span class="ici-name">'+esc(f.name)+'</span>'
+        + '<span class="ici-meta">'+esc(f.unit)+(f.quantity > 0 ? ' · '+fmtQty(f.quantity)+' on hand' : '')+'</span>';
+      it.addEventListener('mousedown', e => { e.preventDefault(); pickFood(row, f); });
+      menu.appendChild(it);
+    });
+    const exact = items.some(f => f.name.toLowerCase() === qLower);
+    if (q && !exact) {
+      const create = document.createElement('div');
+      create.className = 'ing-combo-item create';
+      create.innerHTML = '<span class="ici-icon">+</span><span class="ici-name">Add "'+esc(q)+'" to pantry</span><span class="ici-meta">new item</span>';
+      create.addEventListener('mousedown', e => { e.preventDefault(); createAndPick(row, q); });
+      menu.appendChild(create);
+    }
+  };
+  const filterAndRender = (q) => {
+    const qLower = (q || '').toLowerCase();
+    const filtered = qLower
+      ? PANTRY_FOODS.filter(f => f.name.toLowerCase().includes(qLower)).slice(0, 20)
+      : PANTRY_FOODS.slice(0, 20);
+    render(filtered, q);
+  };
+
+  input.addEventListener('focus', () => { filterAndRender(input.value); menu.classList.add('open'); });
+  input.addEventListener('input', () => { clearStatus(row); filterAndRender(input.value); menu.classList.add('open'); });
+  input.addEventListener('blur', () => {
+    setTimeout(() => {
+      menu.classList.remove('open');
+      if (input.value.trim() && !hidden.value) markNew(row);
+    }, 150);
+  });
+  input.addEventListener('keydown', e => {
+    if (!menu.classList.contains('open')) return;
+    const items = menu.querySelectorAll('.ing-combo-item');
+    const activeIdx = Array.from(items).findIndex(i => i.classList.contains('active'));
+    if (e.key === 'ArrowDown'){ e.preventDefault(); const n = Math.min(activeIdx + 1, items.length - 1); items.forEach((i,idx)=>i.classList.toggle('active', idx===n)); if (items[n]) items[n].scrollIntoView({block:'nearest'}); }
+    else if (e.key === 'ArrowUp'){ e.preventDefault(); const p = Math.max(activeIdx - 1, 0); items.forEach((i,idx)=>i.classList.toggle('active', idx===p)); if (items[p]) items[p].scrollIntoView({block:'nearest'}); }
+    else if (e.key === 'Enter'){ if (activeIdx >= 0){ e.preventDefault(); items[activeIdx].dispatchEvent(new MouseEvent('mousedown')); } }
+    else if (e.key === 'Escape'){ menu.classList.remove('open'); }
+  });
+}
+
+function pickFood(row, food){
+  row.querySelector('.ing-combo-input').value = food.name;
+  row.querySelector('input[name="ing_food_id[]"]').value = food.id;
+  const unitSel = row.querySelector('select[name="ing_unit[]"]');
+  if (food.unit && Array.from(unitSel.options).some(o => o.value === food.unit)) unitSel.value = food.unit;
+  markMatched(row);
+  row.querySelector('.ing-combo-menu').classList.remove('open');
+  row.querySelector('input[name="ing_qty[]"]').focus();
+}
+
+async function createAndPick(row, name){
+  const unit = row.querySelector('select[name="ing_unit[]"]').value || 'pcs';
+  try {
+    const res = await fetch('/api/foods/create', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({name: name, unit: unit}),
+    });
+    if (!res.ok) throw new Error();
+    const food = await res.json();
+    if (food.created) PANTRY_FOODS.push(food);
+    pickFood(row, food);
+  } catch (err) {
+    row.querySelector('input[name="ing_food_id[]"]').value = '';
+    row.querySelector('.ing-combo-input').value = name;
+    markNew(row);
+    row.querySelector('.ing-combo-menu').classList.remove('open');
+  }
+}
+
+function fmtQty(q){ return Number.isInteger(q) ? q.toString() : q.toFixed(2).replace(/\.?0+$/, ''); }
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// Pre-populate existing ingredients on load
+window.addEventListener('DOMContentLoaded', function(){
+  const existing = [
+    {% for ing in recipe.ingredients %}
+    {name: {{ ing.name|tojson }}, food_id: {{ ing.food_item_id if ing.food_item_id else 'null' }}, qty: {{ ing.quantity }}, unit: {{ ing.unit|tojson }}},
+    {% endfor %}
+  ];
+  if (existing.length) existing.forEach(function(p){ addIngRow(p); });
+  else addIngRow();
+});
+</script>
+</body>
+</html>

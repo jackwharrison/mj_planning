@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jack & Minke — Finance</title>
+<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F2F2F7;--bg2:#FFFFFF;--bg3:#F2F2F7;
+  --sep:rgba(60,60,67,0.12);--sep-strong:rgba(60,60,67,0.22);
+  --ink:#1C1C1E;--ink2:#3A3A3C;--ink3:#636366;--ink4:#AEAEB2;
+  --blue:#0A84FF;--blue-bg:#E8F2FF;--blue-t:#004FAD;
+  --pink:#FF375F;--pink-bg:#FFF0F3;--pink-t:#9B1030;
+  --teal:#30B98A;--teal-bg:#E6F8F2;--teal-t:#0E6648;
+  --amber:#FF9F0A;--amber-bg:#FFF5E6;--amber-t:#7A4400;
+  --green:#34C759;--green-bg:#E9FAF0;--green-t:#1A6B32;
+  --red:#FF3B30;--red-bg:#FFF0EF;--red-t:#9B0E08;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow:0 3px 12px rgba(0,0,0,0.09),0 1px 4px rgba(0,0,0,0.06);
+  --r:14px;--r-lg:20px;
+}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px;-webkit-font-smoothing:antialiased;}
+
+/* Nav */
+.nav{background:rgba(242,242,247,0.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--sep);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:200;}
+.nav-logo{font-size:17px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;text-decoration:none;letter-spacing:-0.3px;}
+.logo-pip{width:8px;height:8px;border-radius:50%;background:#30B98A;box-shadow:0 0 0 3px rgba(48,185,138,0.2);}
+.nav-pills{display:flex;gap:2px;list-style:none;background:rgba(120,120,128,0.12);border-radius:12px;padding:3px;}
+.nav-pills a{font-size:13px;font-weight:500;color:var(--ink3);text-decoration:none;padding:5px 14px;border-radius:9px;transition:all 0.2s;}
+.nav-pills a.active{background:var(--bg2);color:var(--ink);box-shadow:var(--shadow-sm);}
+.nav-pills a:hover:not(.active){color:var(--ink);}
+.nav-avs{display:flex;align-items:center;}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:2px solid var(--bg);box-shadow:var(--shadow-sm);}
+.av-j{background:var(--blue-bg);color:var(--blue-t);}
+.av-m{background:var(--pink-bg);color:var(--pink-t);}
+.nav-avs .av:not(:first-child){margin-left:-8px;}
+
+.page{max-width:940px;margin:0 auto;padding:28px 20px 56px;}
+.page-title{font-size:26px;font-weight:600;letter-spacing:-0.5px;margin-bottom:4px;}
+.page-sub{font-size:14px;color:var(--ink3);margin-bottom:24px;}
+.section-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink4);margin-bottom:12px;}
+.card{background:var(--bg2);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);margin-bottom:20px;}
+
+/* ── Hero assets card ── */
+.assets-hero{padding:28px 28px 24px;}
+.assets-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap;}
+.total-assets-block{}
+.ta-label{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink4);margin-bottom:6px;}
+.ta-val{font-size:52px;font-weight:600;letter-spacing:-1.5px;color:var(--ink);line-height:1;}
+.ta-sub{font-size:14px;color:var(--ink3);margin-top:6px;}
+.assets-breakdown{display:flex;gap:10px;flex-wrap:wrap;align-self:flex-start;}
+.mini-stat{background:var(--bg3);border-radius:12px;padding:14px 18px;min-width:140px;}
+.ms-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink4);margin-bottom:5px;}
+.ms-val{font-size:22px;font-weight:600;letter-spacing:-0.4px;color:var(--ink);}
+.ms-sub{font-size:12px;color:var(--ink4);margin-top:2px;}
+
+.progress-section{margin-bottom:0;}
+.progress-track{height:12px;background:var(--bg3);border-radius:99px;overflow:hidden;margin-bottom:8px;}
+.progress-fill{height:100%;border-radius:99px;transition:width 0.7s cubic-bezier(0.34,1.2,0.64,1);}
+.progress-meta{display:flex;justify-content:space-between;align-items:center;}
+.progress-pct{font-size:13px;font-weight:600;color:var(--ink2);}
+.progress-caption{font-size:12px;color:var(--ink4);}
+
+.edit-btn{font-size:12px;font-weight:500;color:var(--blue);background:none;border:none;cursor:pointer;font-family:inherit;padding:5px 12px;border-radius:99px;transition:background 0.15s;flex-shrink:0;}
+.edit-btn:hover{background:var(--blue-bg);}
+.edit-form{display:none;padding:20px 28px 24px;border-top:1px solid var(--sep);}
+.edit-form.open{display:block;}
+.edit-form-row{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:flex-end;}
+.ef label{font-size:11px;font-weight:600;color:var(--ink4);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;}
+.ef input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--sep-strong);background:var(--bg3);font-size:14px;font-family:inherit;color:var(--ink);outline:none;transition:border-color 0.15s;}
+.ef input:focus{border-color:var(--blue);background:#fff;}
+.btn-pill{padding:10px 20px;border-radius:99px;border:none;background:var(--blue);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+/* ── Cost summary ── */
+.summary-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.sum-card{background:var(--bg2);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);padding:18px 20px;}
+.sum-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink4);margin-bottom:8px;}
+.sum-val{font-size:26px;font-weight:600;letter-spacing:-0.5px;color:var(--ink);}
+.sum-sub{font-size:12px;color:var(--ink4);margin-top:4px;}
+
+/* ── Charts ── */
+.vchart-wrap{display:flex;align-items:flex-end;gap:20px;height:180px;padding:0 8px;}
+.vchart-group{display:flex;flex-direction:column;align-items:center;flex:1;}
+.vchart-bars{display:flex;align-items:flex-end;gap:6px;height:150px;width:100%;}
+.vchart-bar{border-radius:6px 6px 0 0;flex:1;min-height:4px;transition:opacity 0.15s;cursor:pointer;}
+.vchart-bar:hover{opacity:0.8;}
+.vchart-axis{height:1px;background:var(--sep);width:100%;margin:4px 0;}
+.vchart-name{font-size:11px;font-weight:500;color:var(--ink3);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;}
+.vchart-val{font-size:11px;color:var(--ink4);text-align:center;margin-top:2px;}
+.chart-legend{display:flex;gap:16px;margin-top:14px;flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--ink3);}
+.leg-pip{width:12px;height:12px;border-radius:3px;}
+
+.tbar-row{display:grid;grid-template-columns:160px 1fr 90px;align-items:center;gap:10px;margin-bottom:8px;}
+.tbar-label{font-size:12px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tbar-track{height:22px;background:var(--bg3);border-radius:7px;position:relative;overflow:hidden;cursor:pointer;}
+.tbar-fill{height:100%;border-radius:7px;position:absolute;top:0;left:0;}
+.tbar-est{opacity:0.28;}
+.tbar-vals{text-align:right;}
+.tbar-est-v{font-size:11px;color:var(--ink4);}
+.tbar-act-v{font-size:12px;font-weight:600;color:var(--ink);}
+.proj-chart-section{margin-bottom:18px;}
+.proj-chart-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.proj-chart-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.proj-chart-name{font-size:13px;font-weight:600;color:var(--ink);}
+
+/* ── Breakdown table ── */
+.proj-section{margin-bottom:10px;}
+.proj-header-row{background:var(--bg2);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:box-shadow 0.15s;}
+.proj-header-row:hover{box-shadow:var(--shadow);}
+.proj-left{display:flex;align-items:center;gap:10px;}
+.proj-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.proj-name-t{font-size:14px;font-weight:600;color:var(--ink);}
+.proj-right{display:flex;align-items:center;gap:20px;}
+.proj-col{text-align:right;}
+.proj-col-label{font-size:11px;color:var(--ink4);}
+.proj-col-val{font-size:14px;font-weight:600;color:var(--ink);}
+.proj-chev{color:var(--ink4);transition:transform 0.2s;font-size:12px;margin-left:8px;}
+.proj-chev.open{transform:rotate(180deg);}
+.tasks-table{display:none;background:var(--bg2);border-radius:0 0 var(--r-lg) var(--r-lg);border-top:1px solid var(--sep);}
+.tasks-table.open{display:block;}
+.table-head{display:grid;grid-template-columns:1fr 140px 160px;gap:8px;padding:8px 20px;background:var(--bg3);border-bottom:1px solid var(--sep);}
+.th{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink4);}
+.th.right{text-align:right;}
+.task-fin-row{display:grid;grid-template-columns:1fr 140px 160px;gap:8px;padding:11px 20px;border-bottom:1px solid var(--sep);align-items:center;}
+.task-fin-row:last-child{border-bottom:none;}
+.task-fin-name{font-size:13px;font-weight:500;color:var(--ink);}
+.task-fin-done{color:var(--ink4);text-decoration:line-through;}
+.cost-cell{text-align:right;}
+.cost-val{font-size:13px;font-weight:500;color:var(--ink);}
+.cost-empty{font-size:13px;color:var(--ink4);}
+.btn-edit-cost{background:none;border:none;cursor:pointer;color:var(--blue);font-size:11px;font-weight:500;font-family:inherit;padding:0;}
+.edit-cost-wrap{display:none;background:var(--bg3);padding:10px 20px 14px;border-top:1px solid var(--sep);}
+.edit-cost-wrap.open{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+.save-indicator{font-size:12px;font-weight:500;}
+
+/* ── Savings calculator ── */
+.calc-card{padding:24px 28px;}
+.calc-title{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+.calc-sub{font-size:13px;color:var(--ink3);margin-bottom:20px;}
+.calc-projects{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.calc-proj-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:12px;background:var(--bg3);}
+.calc-proj-left{display:flex;align-items:center;gap:10px;}
+.calc-proj-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.calc-proj-name{font-size:13px;font-weight:500;color:var(--ink);}
+.calc-proj-cost{font-size:13px;font-weight:600;color:var(--ink3);}
+.calc-proj-result{font-size:13px;font-weight:600;}
+.calc-divider{height:1px;background:var(--sep);margin:16px 0;}
+.calc-grand{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-radius:14px;border:1.5px solid var(--sep-strong);}
+.calc-grand-left{font-size:15px;font-weight:600;color:var(--ink);}
+.calc-grand-val{font-size:24px;font-weight:600;letter-spacing:-0.4px;}
+.calc-grand-val.positive{color:var(--green);}
+.calc-grand-val.negative{color:var(--red);}
+.calc-note{font-size:12px;color:var(--ink4);margin-top:12px;}
+
+.tip{position:fixed;pointer-events:none;z-index:999;background:var(--ink);color:#fff;font-size:12px;font-weight:500;padding:8px 12px;border-radius:9px;white-space:nowrap;display:none;box-shadow:0 4px 14px rgba(0,0,0,0.2);line-height:1.5;}
+.empty-finance{text-align:center;padding:32px;color:var(--ink4);font-size:14px;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.card,.sum-card{animation:fadeUp 0.22s ease both;}
+
+@media(max-width:700px){
+  .nav{padding:0 10px;height:50px;gap:6px;}
+  .nav-logo{font-size:0;gap:6px;}.nav-logo .logo-pip{display:block;}
+  .nav-pills{overflow-x:auto;-webkit-overflow-scrolling:touch;gap:1px;padding:2px;flex-shrink:1;min-width:0;scrollbar-width:none;}
+  .nav-pills::-webkit-scrollbar{display:none;}
+  .nav-pills a{font-size:11px;padding:4px 9px;white-space:nowrap;}
+  .nav-avs{display:none;}
+  .page{padding:16px 10px 40px;}
+  .page-title{font-size:20px;}
+  .summary-row{grid-template-columns:1fr 1fr;gap:8px;}
+  .summary-card{padding:12px;border-radius:14px;}
+  .summary-card .label{font-size:10px;}
+  .summary-card .value{font-size:20px;}
+  .assets-breakdown{flex-direction:column;}
+  .tbar-row{grid-template-columns:80px 1fr 60px;gap:6px;padding:8px 12px;font-size:12px;}
+  .table-head,.task-fin-row{grid-template-columns:1fr 80px 100px;padding:8px 12px;font-size:12px;}
+  .edit-form-row{grid-template-columns:1fr 1fr;gap:6px;}.edit-form-row .btn-pill{grid-column:1/-1;}
+  .section-head{padding:12px 14px 10px;}
+}
+</style>
+</head>
+<body>
+<div class="tip" id="tip"></div>
+
+<nav class="nav">
+  <a class="nav-logo" href="/"><span class="logo-pip"></span>Jack & Minke</a>
+  <ul class="nav-pills">
+    <li><a href="/">Dashboard</a></li>
+    <li><a href="/workouts">Workouts</a></li>
+    <li><a href="/meals">Meals</a></li>
+    <li><a href="/calendar">Calendar</a></li>
+    <li><a href="/finance" class="active">Finance</a></li>
+  </ul>
+  <div class="nav-avs">
+    <div class="av av-j" style="{{ 'opacity:1' if current_user.id == 'jack' else 'opacity:0.35' }}">J</div>
+    <div class="av av-m" style="{{ 'opacity:1' if current_user.id == 'minke' else 'opacity:0.35' }}">M</div>
+    <a href="/logout" style="font-size:12px;font-weight:500;color:var(--ink3);text-decoration:none;margin-left:10px;padding:5px 12px;border-radius:99px;background:rgba(120,120,128,0.12);transition:all 0.15s;" onmouseover="this.style.background='rgba(120,120,128,0.22)'" onmouseout="this.style.background='rgba(120,120,128,0.12)'">Sign out</a>
+  </div>
+</nav>
+
+<main class="page">
+  <div class="page-title">Finance</div>
+  <div class="page-sub">{{ now.strftime('%B %Y') }} &middot; all amounts in euros</div>
+
+  <!-- ── Hero assets card ── -->
+  {% set gap = total_remaining - total_assets %}
+  {% set covered_pct = [(total_assets / total_remaining * 100 if total_remaining > 0 else 100), 100] | min %}
+  <div class="card" style="animation-delay:0.02s">
+    <div class="assets-hero">
+      <div class="assets-top">
+        <div class="total-assets-block">
+          <div class="ta-label">Total assets</div>
+          <div class="ta-val">€{{ '%.0f' | format(total_assets) }}</div>
+          <div class="ta-sub">savings + investments</div>
+        </div>
+        <div class="assets-breakdown">
+          <div style="display:flex;gap:10px;">
+            <div class="mini-stat">
+              <div class="ms-label">Savings</div>
+              <div class="ms-val">€{{ '%.0f' | format(savings_current) }}</div>
+              <div class="ms-sub">cash</div>
+            </div>
+            <div class="mini-stat">
+              <div class="ms-label">Investments</div>
+              <div class="ms-val">€{{ '%.0f' | format(savings_investments) }}</div>
+              <div class="ms-sub">stocks, funds etc.</div>
+            </div>
+          </div>
+          <button class="edit-btn" onclick="toggleEdit('assets-form')">Edit</button>
+        </div>
+      </div>
+      {% if total_remaining > 0 %}
+      <div class="progress-section">
+        <div class="progress-track">
+          <div class="progress-fill" style="width:{{ '%.1f' | format(covered_pct) }}%;background:{{ 'var(--green)' if gap <= 0 else 'var(--blue)' }};"></div>
+        </div>
+        <div class="progress-meta">
+          <div class="progress-pct">{{ '%.0f' | format(covered_pct) }}% of remaining costs covered</div>
+          <div class="progress-caption">
+            {% if gap <= 0 %}All costs covered!
+            {% else %}€{{ '%.0f' | format(gap) }} still needed{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    <div class="edit-form" id="assets-form">
+      <form method="POST" action="/settings/savings">
+        <div class="edit-form-row">
+          <div class="ef">
+            <label>Savings (€)</label>
+            <input type="number" name="savings_current" step="1" min="0"
+                   value="{{ '%.0f' | format(savings_current) }}" placeholder="0">
+          </div>
+          <div class="ef">
+            <label>Investments (€)</label>
+            <input type="number" name="savings_investments" step="1" min="0"
+                   value="{{ '%.0f' | format(savings_investments) }}" placeholder="0">
+          </div>
+          <button type="submit" class="btn-pill">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── Cost summary ── -->
+  <div class="section-label">Costs overview</div>
+  <div class="summary-row">
+    <div class="sum-card" style="animation-delay:0.06s">
+      <div class="sum-label">Actual spent</div>
+      <div class="sum-val">€{{ '%.0f' | format(total_actual) }}</div>
+      <div class="sum-sub">confirmed costs</div>
+    </div>
+    <div class="sum-card" style="animation-delay:0.09s">
+      <div class="sum-label">Estimated remaining</div>
+      <div class="sum-val">€{{ '%.0f' | format(total_estimate_remaining) }}</div>
+      <div class="sum-sub">tasks without actual costs</div>
+    </div>
+    <div class="sum-card" style="animation-delay:0.12s">
+      <div class="sum-label">Total committed</div>
+      <div class="sum-val">€{{ '%.0f' | format(total_actual + total_estimate_remaining) }}</div>
+      <div class="sum-sub">actual + estimated remaining</div>
+    </div>
+  </div>
+
+  {% if projects %}
+
+  <!-- ── Vertical bar chart by project ── -->
+  {% set max_proj = namespace(v=1) %}
+  {% for p in projects %}
+    {% if p.total_actual > max_proj.v %}{% set max_proj.v = p.total_actual %}{% endif %}
+    {% if p.total_estimate_remaining > max_proj.v %}{% set max_proj.v = p.total_estimate_remaining %}{% endif %}
+  {% endfor %}
+
+  <div class="section-label">By project</div>
+  <div class="card" style="padding:22px 24px;animation-delay:0.14s">
+    <div class="vchart-wrap">
+      {% for p in projects %}
+      {% set col = hex.get(p.color, '#0A84FF') %}
+      {% set total_h_val = p.total_actual + p.total_estimate_remaining %}
+      {% set total_h = (total_h_val / max_proj.v * 140) | round | int %}
+      {% set act_h = (p.total_actual / total_h_val * [total_h,4]|max) | round | int if total_h_val > 0 else 0 %}
+      {% set est_h = ([total_h,4]|max) - act_h %}
+      <div class="vchart-group">
+        <div class="vchart-bars" style="position:relative;width:100%;">
+          <!-- Stacked bar: estimated on bottom (faded), actual on top (solid) -->
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:150px;width:100%;">
+            <div style="width:36px;border-radius:6px 6px 0 0;background:{{ col }};height:{{ [act_h,2]|max }}px;"
+                 data-tip="{{ p.name }} — actual: €{{ '%.0f' | format(p.total_actual) }}"
+                 onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"></div>
+            {% if p.total_estimate_remaining > 0 %}
+            <div style="width:36px;background:{{ col }};opacity:0.28;height:{{ [est_h,2]|max }}px;"
+                 data-tip="{{ p.name }} — est. remaining: €{{ '%.0f' | format(p.total_estimate_remaining) }}"
+                 onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"></div>
+            {% endif %}
+          </div>
+        </div>
+        <div class="vchart-axis"></div>
+        <div class="vchart-name">{{ p.name }}</div>
+        <div class="vchart-val">€{{ '%.0f' | format(p.total_actual + p.total_estimate_remaining) }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="chart-legend">
+      <div class="leg-item"><div class="leg-pip" style="background:var(--ink);"></div>Actual spent</div>
+      <div class="leg-item"><div class="leg-pip" style="background:var(--ink);opacity:0.28;"></div>Estimated remaining</div>
+    </div>
+  </div>
+
+  <!-- ── Task bars grouped by project ── -->
+  {% set has_costs = namespace(v=false) %}
+  {% for p in projects %}{% for t in p.tasks %}
+    {% if t.cost_actual is not none or t.cost_estimate is not none %}{% set has_costs.v = true %}{% endif %}
+  {% endfor %}{% endfor %}
+
+  {% if has_costs.v %}
+  {% set max_task = namespace(v=1) %}
+  {% for p in projects %}{% for t in p.tasks %}
+    {% if (t.cost_actual or 0) > max_task.v %}{% set max_task.v = t.cost_actual %}{% endif %}
+    {% if (t.cost_estimate or 0) > max_task.v and t.cost_actual is none %}{% set max_task.v = t.cost_estimate %}{% endif %}
+  {% endfor %}{% endfor %}
+
+  <div class="card" style="padding:22px 24px;animation-delay:0.18s">
+    <div class="section-label" style="margin-bottom:18px;">Cost per task</div>
+    <div class="chart-legend" style="margin-bottom:18px;">
+      <div class="leg-item"><div class="leg-pip" style="background:var(--ink);border-radius:3px;"></div>Actual</div>
+      <div class="leg-item"><div class="leg-pip" style="background:var(--ink);opacity:0.28;border-radius:3px;"></div>Estimated remaining</div>
+    </div>
+
+    {% for p in projects %}
+    {% set col = hex.get(p.color, '#0A84FF') %}
+    {% set p_tasks_with_costs = [] %}
+    {% for t in p.tasks %}
+      {% if t.cost_actual is not none or t.cost_estimate is not none %}
+        {% set _ = p_tasks_with_costs.append(t) %}
+      {% endif %}
+    {% endfor %}
+    {% if p_tasks_with_costs %}
+    {# Max for this project only #}
+    {% set proj_max = namespace(v=1) %}
+    {% for t in p_tasks_with_costs %}
+      {% set tv = t.cost_actual if t.cost_actual is not none else (t.cost_estimate or 0) %}
+      {% if tv > proj_max.v %}{% set proj_max.v = tv %}{% endif %}
+    {% endfor %}
+    {# Project total for % calculation #}
+    {% set proj_total = p.total_actual + p.total_estimate_remaining %}
+    <div class="proj-chart-section">
+      <div class="proj-chart-header">
+        <div class="proj-chart-dot" style="background:{{ col }}"></div>
+        <div class="proj-chart-name">{{ p.name }}</div>
+      </div>
+      {% for t in p_tasks_with_costs %}
+      {% set show_act = t.cost_actual is not none %}
+      {% set val = t.cost_actual if show_act else (t.cost_estimate or 0) %}
+      {% set bar_w = (val / proj_max.v * 100) if proj_max.v > 0 else 0 %}
+      {% set pct = (val / proj_total * 100) | round | int if proj_total > 0 else 0 %}
+      <div class="tbar-row" style="grid-template-columns:160px 1fr 100px 40px;">
+        <div class="tbar-label" title="{{ t.name }}">{{ t.name }}</div>
+        <div class="tbar-track"
+             data-tip="{{ t.name }}: {% if show_act %}actual €{{ '%.0f' | format(val) }}{% else %}est. remaining €{{ '%.0f' | format(val) }}{% endif %} ({{ pct }}% of project)"
+             onmouseenter="showTip(event,this)" onmousemove="moveTip(event)" onmouseleave="hideTip()">
+          <div class="tbar-fill {{ 'tbar-est' if not show_act }}"
+               style="width:{{ '%.1f' | format(bar_w) }}%;background:{{ col }};"></div>
+        </div>
+        <div class="tbar-vals">
+          {% if show_act %}
+          <div class="tbar-act-v">€{{ '%.0f' | format(val) }}</div>
+          {% else %}
+          <div class="tbar-est-v">€{{ '%.0f' | format(val) }}</div>
+          {% endif %}
+        </div>
+        <div style="font-size:11px;color:var(--ink4);text-align:right;">{{ pct }}%</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% if not loop.last %}<div style="height:1px;background:var(--sep);margin:14px 0;"></div>{% endif %}
+    {% endif %}
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ── Task breakdown table ── -->
+  <div class="section-label">Task breakdown</div>
+  {% for p in projects %}
+  {% set col = hex.get(p.color, '#0A84FF') %}
+  <div class="proj-section">
+    <div class="proj-header-row" onclick="toggleProject({{ p.id }})">
+      <div class="proj-left">
+        <div class="proj-dot" style="background:{{ col }}"></div>
+        <div class="proj-name-t">{{ p.name }}</div>
+      </div>
+      <div class="proj-right">
+        <div class="proj-col">
+          <div class="proj-col-label">Actual</div>
+          <div class="proj-col-val">€{{ '%.0f' | format(p.total_actual) }}</div>
+        </div>
+        <div class="proj-col">
+          <div class="proj-col-label">Est. remaining</div>
+          <div class="proj-col-val">€{{ '%.0f' | format(p.total_estimate_remaining) }}</div>
+        </div>
+        <div class="proj-chev" id="chev-{{ p.id }}">▾</div>
+      </div>
+    </div>
+    <div class="tasks-table" id="proj-{{ p.id }}">
+      {% if p.tasks %}
+      <div class="table-head">
+        <div class="th">Task</div>
+        <div class="th right">Actual</div>
+        <div class="th right">Est. remaining</div>
+      </div>
+      {% for t in p.tasks | sort(attribute='created_at') %}
+      <div class="task-fin-row">
+        <div>
+          <div class="task-fin-name {{ 'task-fin-done' if t.done }}">{{ t.name }}</div>
+          <button class="btn-edit-cost" onclick="toggleEditCost({{ t.id }}, this)">Edit costs</button>
+        </div>
+        <div class="cost-cell" id="cell-act-{{ t.id }}">
+          {% if t.cost_actual is not none %}<div class="cost-val">€{{ '%.0f' | format(t.cost_actual) }}</div>
+          {% else %}<div class="cost-empty">—</div>{% endif %}
+        </div>
+        <div class="cost-cell" id="cell-est-{{ t.id }}">
+          {% if t.cost_actual is none and t.cost_estimate is not none %}
+            <div class="cost-val" style="color:var(--ink3);">€{{ '%.0f' | format(t.cost_estimate) }}</div>
+          {% elif t.cost_actual is not none %}
+            <div class="cost-empty">—</div>
+          {% else %}
+            <div class="cost-empty">—</div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="edit-cost-wrap" id="ecw-{{ t.id }}">
+        <div class="ef">
+          <label>Estimated (€)</label>
+          <input type="number" id="ec-est-{{ t.id }}" step="1" min="0"
+                 value="{{ '%.0f' | format(t.cost_estimate) if t.cost_estimate is not none else '' }}"
+                 placeholder="0">
+        </div>
+        <div class="ef">
+          <label>Actual (€)</label>
+          <input type="number" id="ec-act-{{ t.id }}" step="1" min="0"
+                 value="{{ '%.0f' | format(t.cost_actual) if t.cost_actual is not none else '' }}"
+                 placeholder="0">
+        </div>
+        <button type="button" class="btn-pill" style="font-size:12px;padding:8px 16px;" onclick="saveCost({{ t.id }})">Save</button>
+        <span class="save-indicator" id="si-{{ t.id }}"></span>
+      </div>
+      {% endfor %}
+      {% else %}
+      <div class="empty-finance">No tasks in this project yet.</div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+
+  <!-- ── What would I have left? ── -->
+  <div class="section-label" style="margin-top:8px;">What would I have left?</div>
+  <div class="card" style="animation-delay:0.22s">
+    <div class="calc-card">
+      <div class="calc-title">Savings after spending</div>
+      <div class="calc-sub">Total assets minus estimated remaining costs per project, and combined.</div>
+
+      <div class="calc-projects">
+        {% for p in projects %}
+        {% if p.total_estimate_remaining > 0 %}
+        {% set remaining = total_assets - p.total_estimate_remaining %}
+        {% set col = hex.get(p.color, '#0A84FF') %}
+        <div class="calc-proj-row">
+          <div class="calc-proj-left">
+            <div class="calc-proj-dot" style="background:{{ col }}"></div>
+            <div class="calc-proj-name">After {{ p.name }}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div class="calc-proj-cost" style="color:var(--ink4);">− €{{ '%.0f' | format(p.total_estimate_remaining) }}</div>
+            <div class="calc-proj-result" style="color:{{ 'var(--green)' if remaining >= 0 else 'var(--red)' }};min-width:80px;text-align:right;">
+              {{ '+' if remaining >= 0 else '' }}€{{ '%.0f' | format(remaining) }}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="calc-divider"></div>
+
+      {% set grand_remaining = total_assets - total_estimate_remaining %}
+      <div class="calc-grand">
+        <div>
+          <div class="calc-grand-left">After all projects</div>
+          <div style="font-size:12px;color:var(--ink4);margin-top:2px;">€{{ '%.0f' | format(total_assets) }} − €{{ '%.0f' | format(total_estimate_remaining) }}</div>
+        </div>
+        <div class="calc-grand-val" style="color:var(--ink);">
+          {{ '+' if grand_remaining >= 0 else '' }}€{{ '%.0f' | format(grand_remaining) }}
+        </div>
+      </div>
+      <div class="calc-note">Based on estimated remaining costs only — tasks with actual costs already recorded are excluded.</div>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="empty-finance">No projects yet — add one from the dashboard.</div>
+  {% endif %}
+
+</main>
+
+<script>
+const tip = document.getElementById('tip');
+function showTip(e, el) { tip.innerHTML = el.dataset.tip; tip.style.display='block'; moveTip(e); }
+function moveTip(e) { tip.style.left=(e.clientX+14)+'px'; tip.style.top=(e.clientY-44)+'px'; }
+function hideTip() { tip.style.display='none'; }
+
+function toggleEdit(id) { document.getElementById(id).classList.toggle('open'); }
+
+function toggleProject(id) {
+  document.getElementById('proj-'+id).classList.toggle('open');
+  document.getElementById('chev-'+id).classList.toggle('open');
+}
+
+function toggleEditCost(id, btn) {
+  const w = document.getElementById('ecw-'+id);
+  const open = w.classList.toggle('open');
+  btn.textContent = open ? 'Cancel' : 'Edit costs';
+}
+
+function saveCost(id) {
+  const est = document.getElementById('ec-est-'+id).value.trim();
+  const act = document.getElementById('ec-act-'+id).value.trim();
+  const si  = document.getElementById('si-'+id);
+  const fd  = new FormData();
+  fd.append('cost_estimate', est);
+  fd.append('cost_actual',   act);
+  fetch('/tasks/'+id+'/edit', {method:'POST', body:fd})
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) throw new Error();
+      const fmt = v => v != null ? '€'+Math.round(v) : null;
+      const actV = fmt(d.cost_actual);
+      const estV = fmt(d.cost_estimate);
+      const hasAct = d.cost_actual != null;
+      const hasEst = d.cost_estimate != null;
+
+      document.getElementById('cell-act-'+id).innerHTML =
+        actV ? `<div class="cost-val">${actV}</div>` : `<div class="cost-empty">—</div>`;
+      // Est remaining only shown if no actual
+      document.getElementById('cell-est-'+id).innerHTML =
+        (!hasAct && hasEst)
+          ? `<div class="cost-val" style="color:var(--ink3);">${estV}</div>`
+          : `<div class="cost-empty">—</div>`;
+
+      si.textContent = '✓ Saved'; si.style.color = 'var(--green)';
+      setTimeout(() => { si.textContent=''; }, 2000);
+    })
+    .catch(() => { si.textContent='Error'; si.style.color='var(--red)'; });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const first = document.querySelector('.proj-section .proj-header-row');
+  if (first) first.click();
+});
+</script>
+</body>
+</html>

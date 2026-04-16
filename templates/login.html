@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jack & Minke — Sign in</title>
+<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F2F2F7; --bg2:#FFFFFF;
+  --sep:rgba(60,60,67,0.12); --sep-strong:rgba(60,60,67,0.22);
+  --ink:#1C1C1E; --ink3:#636366; --ink4:#AEAEB2;
+  --blue:#0A84FF; --blue-bg:#E8F2FF; --blue-t:#004FAD;
+  --pink:#FF375F; --pink-bg:#FFF0F3; --pink-t:#9B1030;
+  --teal:#30B98A;
+  --red-bg:#FFF0EF; --red-t:#9B0E08;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow:0 4px 16px rgba(0,0,0,0.08),0 1px 4px rgba(0,0,0,0.05);
+  --r:14px; --r-lg:20px;
+}
+body{
+  font-family:'DM Sans',-apple-system,sans-serif;
+  background:var(--bg);color:var(--ink);
+  min-height:100vh;font-size:15px;
+  -webkit-font-smoothing:antialiased;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+}
+
+.card{
+  background:var(--bg2);border-radius:var(--r-lg);
+  box-shadow:var(--shadow);
+  padding:40px 36px;
+  width:100%;max-width:380px;
+  animation:fadeUp 0.3s ease;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+.logo{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:28px;}
+.logo-pip{width:10px;height:10px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px rgba(48,185,138,0.2);}
+.logo-text{font-size:20px;font-weight:600;letter-spacing:-0.3px;}
+
+.who-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.who-btn{
+  padding:14px;border-radius:var(--r);border:1.5px solid var(--sep-strong);
+  background:transparent;cursor:pointer;transition:all 0.18s;
+  font-family:inherit;text-align:center;
+}
+.who-btn:hover{border-color:var(--sep-strong);background:var(--bg);}
+.who-btn.selected-jack{background:var(--blue-bg);border-color:var(--blue);box-shadow:0 0 0 3px rgba(10,132,255,0.15);}
+.who-btn.selected-minke{background:var(--pink-bg);border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,55,95,0.15);}
+.who-av{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:600;margin:0 auto 8px;
+}
+.av-j{background:var(--blue-bg);color:var(--blue-t);}
+.av-m{background:var(--pink-bg);color:var(--pink-t);}
+.who-name{font-size:14px;font-weight:600;color:var(--ink);}
+
+.field-label{font-size:11px;font-weight:600;color:var(--ink4);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:6px;}
+.password-input{
+  width:100%;padding:12px 14px;border-radius:var(--r);
+  border:1.5px solid var(--sep-strong);background:var(--bg);
+  font-size:15px;font-family:inherit;color:var(--ink);outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s;
+  margin-bottom:20px;
+}
+.password-input:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(10,132,255,0.12);}
+
+.sign-in-btn{
+  width:100%;padding:13px;border-radius:99px;border:none;
+  background:var(--blue);color:#fff;
+  font-size:15px;font-weight:600;font-family:inherit;
+  cursor:pointer;transition:all 0.18s;letter-spacing:0.01em;
+}
+.sign-in-btn:hover{background:#0077ED;transform:translateY(-1px);}
+.sign-in-btn:active{transform:translateY(0);}
+
+.error{
+  background:var(--red-bg);color:var(--red-t);
+  font-size:13px;font-weight:500;
+  padding:10px 14px;border-radius:var(--r);
+  margin-bottom:18px;text-align:center;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <span class="logo-pip"></span>
+    <span class="logo-text">Jack & Minke</span>
+  </div>
+
+  {% if error %}
+  <div class="error">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST" action="/login">
+    <!-- Who are you? -->
+    <div class="who-row">
+      <button type="button" class="who-btn" id="btn-jack" onclick="selectWho('jack')">
+        <div class="who-av av-j">J</div>
+        <div class="who-name">Jack</div>
+      </button>
+      <button type="button" class="who-btn" id="btn-minke" onclick="selectWho('minke')">
+        <div class="who-av av-m">M</div>
+        <div class="who-name">Minke</div>
+      </button>
+    </div>
+
+    <input type="hidden" name="who" id="who-input" value="">
+
+    <label class="field-label" for="password">Password</label>
+    <input class="password-input" type="password" name="password" id="password"
+           placeholder="Enter your password" autocomplete="current-password">
+
+    <button type="submit" class="sign-in-btn">Sign in</button>
+  </form>
+</div>
+
+<script>
+function selectWho(who) {
+  document.getElementById('who-input').value = who;
+  document.getElementById('btn-jack').className  = 'who-btn' + (who === 'jack'  ? ' selected-jack'  : '');
+  document.getElementById('btn-minke').className = 'who-btn' + (who === 'minke' ? ' selected-minke' : '');
+  document.getElementById('password').focus();
+}
+
+// Auto-select based on error (re-select previous choice)
+const savedWho = sessionStorage.getItem('jm-who');
+if (savedWho) selectWho(savedWho);
+
+document.querySelector('form').addEventListener('submit', function() {
+  sessionStorage.setItem('jm-who', document.getElementById('who-input').value);
+});
+</script>
+
+</body>
+</html>
