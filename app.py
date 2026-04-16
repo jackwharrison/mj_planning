@@ -15,14 +15,23 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY']                     = os.environ.get('SECRET_KEY', 'dev-secret-change-me')
-app.config['SQLALCHEMY_DATABASE_URI']        = os.environ.get('DATABASE_URL', 'sqlite:///jm.db')
+
+# Database location:
+# - In production on Render, point at the persistent disk mounted at /var/data
+#   (set DATA_DIR=/var/data as an env var on the web service).
+# - Locally, fall back to a file next to app.py so dev data doesn't interfere.
+# - If DATABASE_URL is set (e.g. switching to Postgres later), it takes priority.
+_data_dir = os.environ.get('DATA_DIR', os.path.dirname(__file__))
+os.makedirs(_data_dir, exist_ok=True)
+_default_sqlite = 'sqlite:///' + os.path.join(_data_dir, 'jm.db')
+app.config['SQLALCHEMY_DATABASE_URI']        = os.environ.get('DATABASE_URL', _default_sqlite)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db            = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
+UPLOAD_FOLDER = os.path.join(_data_dir, 'uploads')
 ALLOWED_EXT   = {'pdf','png','jpg','jpeg','gif','doc','docx','xls','xlsx','txt','zip'}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
