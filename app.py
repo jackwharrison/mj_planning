@@ -7,6 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, date, timedelta
 import smtplib, os, uuid, json
+from pywebpush import webpush, WebPushException
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
@@ -41,7 +42,6 @@ PROJECT_HEX = {
     'teal':   '#30B98A',
     'purple': '#BF5AF2',
     'amber':  '#FF9F0A',
-    'ice':  "#0AFFF3"
 }
 
 
@@ -63,7 +63,6 @@ FOOD_CATEGORIES = [
     {'key': 'spice',     'label': 'Spices',        'icon': '🧂', 'color': 'purple', 'order': 70},
     {'key': 'frozen',    'label': 'Frozen',        'icon': '🧊', 'color': 'ice',    'order': 75},
     {'key': 'drink',     'label': 'Drinks',        'icon': '🥤', 'color': 'teal',   'order': 80},
-    {'key': 'household',     'label': 'Household Items', 'icon': '🏡', 'color': 'ice',   'order': 899},
     {'key': 'other',     'label': 'Uncategorised', 'icon': '🍽', 'color': 'gray',   'order': 999},
 ]
 FOOD_CATEGORY_BY_KEY = {c['key']: c for c in FOOD_CATEGORIES}
@@ -118,6 +117,11 @@ def load_user(user_id):
 # ── Email ─────────────────────────────────────────────────────────────────────
 
 APP_URL    = os.environ.get('APP_URL', 'http://localhost:5000')
+
+# ── Web Push / VAPID ──────────────────────────────────────────────────────────
+VAPID_PRIVATE_KEY = os.environ.get('VAPID_PRIVATE_KEY', '')
+VAPID_PUBLIC_KEY  = os.environ.get('VAPID_PUBLIC_KEY',  '')
+VAPID_CLAIMS      = {'sub': f"mailto:{os.environ.get('SMTP_USER', 'admin@example.com')}"}
 SMTP_HOST  = os.environ.get('SMTP_HOST', 'smtp.gmail.com')
 SMTP_PORT  = int(os.environ.get('SMTP_PORT', 587))
 SMTP_USER  = os.environ.get('SMTP_USER', '')
@@ -553,6 +557,16 @@ class ShoppingItem(db.Model):
     unit     = db.Column(db.String(50), default='pcs')
     is_food  = db.Column(db.Boolean, default=True)           # only food items get added to pantry
     bought   = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class PushSubscription(db.Model):
+    """Stores a Web Push subscription for a user (one per browser/device)."""
+    id         = db.Column(db.Integer, primary_key=True)
+    user_id    = db.Column(db.String(10), nullable=False)
+    endpoint   = db.Column(db.Text, nullable=False, unique=True)
+    p256dh     = db.Column(db.Text, nullable=False)
+    auth       = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -1258,6 +1272,12 @@ def meals():
     pantry.sort(key=lambda f: (_category_sort_key(f.category), f.name.lower()))
     low_stock_items = [f for f in pantry if f.low_stock > 0 and f.quantity <= f.low_stock]
 
+    # Split pantry into items we actually have vs. known-but-not-on-hand.
+    # Qty > 0 means in stock; qty == 0 means it's a known item (e.g. auto-
+    # created from a recipe ingredient) but we don't have it right now.
+    pantry_in_stock     = [f for f in pantry if f.quantity > 0]
+    pantry_out_of_stock = [f for f in pantry if f.quantity <= 0]
+
     # Recipes
     recipes = Recipe.query.order_by(Recipe.name).all()
 
@@ -1282,16 +1302,20 @@ def meals():
     shopping_list = []
     for key, item in shopping_needed.items():
         on_hand = None
+        food = None
         if item.get('food_item_id'):
-            on_hand = pantry_by_id.get(item['food_item_id'])
+            food = pantry_by_id.get(item['food_item_id'])
+            on_hand = food
         if on_hand is None:
-            on_hand = pantry_by_name.get(item['name'].lower())
+            food = pantry_by_name.get(item['name'].lower())
+            on_hand = food
+        cat = (food.category if food else 'other') or 'other'
         if on_hand:
             needed = item['quantity'] - on_hand.quantity
             if needed > 0:
-                shopping_list.append({**item, 'quantity': needed, 'auto': True})
+                shopping_list.append({**item, 'quantity': needed, 'auto': True, 'category': cat})
         else:
-            shopping_list.append({**item, 'auto': True})
+            shopping_list.append({**item, 'auto': True, 'category': cat})
 
     # Add low-stock pantry items not already on the list
     already_food_ids = {it.get('food_item_id') for it in shopping_list if it.get('food_item_id')}
@@ -1305,7 +1329,11 @@ def meals():
             'unit': f.unit,
             'auto': True,
             'food_item_id': f.id,
+            'category': f.category or 'other',
         })
+
+    # Sort shopping list by category display order
+    shopping_list.sort(key=lambda it: _category_sort_key(it.get('category', 'other')))
 
     # Custom shopping items
     custom_items = ShoppingItem.query.filter_by(bought=False).order_by(ShoppingItem.created_at).all()
@@ -1315,6 +1343,8 @@ def meals():
         week_offset=week_offset,
         meals_by_day=meals_by_day,
         pantry=pantry,
+        pantry_in_stock=pantry_in_stock,
+        pantry_out_of_stock=pantry_out_of_stock,
         recipes=recipes, shopping_list=shopping_list,
         custom_items=custom_items,
         low_stock_items=low_stock_items,
@@ -1354,9 +1384,11 @@ def pantry_update(fid):
         if new_cat not in FOOD_CATEGORY_BY_KEY:
             new_cat = 'other'
         f.category = new_cat
+    if data.get('unit') is not None:
+        f.unit = (data.get('unit') or 'pcs').strip() or 'pcs'
     db.session.commit()
     return jsonify(ok=True, quantity=f.quantity, category=f.category,
-                   low_stock=f.low_stock)
+                   low_stock=f.low_stock, unit=f.unit)
 
 
 @app.route('/pantry/<int:fid>/delete', methods=['POST'])
@@ -1541,6 +1573,24 @@ def recipe_shopping_list(rid):
     return jsonify(recipe=r.name, items=items)
 
 
+@app.route('/api/recipes/<int:rid>')
+@login_required
+def api_recipe_detail(rid):
+    """Return full recipe detail as JSON for the popup viewer."""
+    r = Recipe.query.get_or_404(rid)
+    return jsonify(
+        id=r.id, name=r.name, servings=r.servings,
+        prep_mins=r.prep_mins, cook_mins=r.cook_mins,
+        instructions=r.instructions or '',
+        source_url=r.source_url or '',
+        tags=[t.strip() for t in (r.tags or '').split(',') if t.strip()],
+        ingredients=[
+            {'name': ing.name, 'quantity': ing.quantity, 'unit': ing.unit}
+            for ing in r.ingredients
+        ],
+    )
+
+
 @app.route('/meal-plans/add', methods=['POST'])
 @login_required
 def meal_plan_add():
@@ -1591,6 +1641,7 @@ def shopping_add_custom():
             is_food  = request.form.get('is_food') == 'on',
         ))
         db.session.commit()
+        notify_shopping_updated(current_user.id, 'add', name)
     return redirect('/meals#shopping')
 
 
@@ -1598,8 +1649,10 @@ def shopping_add_custom():
 @login_required
 def shopping_item_delete(sid):
     si = ShoppingItem.query.get_or_404(sid)
+    name = si.name
     db.session.delete(si)
     db.session.commit()
+    notify_shopping_updated(current_user.id, 'remove', name)
     return redirect('/meals#shopping')
 
 
@@ -1629,6 +1682,93 @@ def shopping_complete():
             db.session.delete(si)
     db.session.commit()
     return jsonify(ok=True)
+
+
+# ── Push notification helpers ─────────────────────────────────────────────────
+
+def send_push_to_user(user_id, title, body, url='/meals'):
+    """Send a push notification to all subscribed devices for a user."""
+    if not VAPID_PRIVATE_KEY or not VAPID_PUBLIC_KEY:
+        app.logger.info('[push] VAPID keys not configured — skipping')
+        return
+    subs = PushSubscription.query.filter_by(user_id=user_id).all()
+    for sub in subs:
+        try:
+            webpush(
+                subscription_info={
+                    'endpoint': sub.endpoint,
+                    'keys': {'p256dh': sub.p256dh, 'auth': sub.auth},
+                },
+                data=json.dumps({'title': title, 'body': body, 'url': url,
+                                 'icon': '/static/icon-192.png'}),
+                vapid_private_key=VAPID_PRIVATE_KEY,
+                vapid_claims=VAPID_CLAIMS,
+            )
+        except WebPushException as e:
+            app.logger.error(f'[push] Failed for {user_id}: {e}')
+            # Remove dead subscriptions (410 Gone)
+            if e.response is not None and e.response.status_code in (404, 410):
+                db.session.delete(sub)
+                db.session.commit()
+
+
+def notify_shopping_updated(actor_id, action, item_name):
+    """Push to the other user when the shopping list changes."""
+    other = 'minke' if actor_id == 'jack' else 'jack'
+    actor_name = _name(actor_id)
+    if action == 'add':
+        body = f'{actor_name} added "{item_name}" to the shopping list'
+    else:
+        body = f'{actor_name} removed "{item_name}" from the shopping list'
+    send_push_to_user(other, '🛒 Shopping list updated', body, url='/meals')
+
+
+# ── Push API routes ───────────────────────────────────────────────────────────
+
+@app.route('/api/push/vapid-public-key')
+@login_required
+def push_vapid_key():
+    return jsonify(key=VAPID_PUBLIC_KEY)
+
+
+@app.route('/api/push/subscribe', methods=['POST'])
+@login_required
+def push_subscribe():
+    data = request.get_json(silent=True) or {}
+    endpoint = data.get('endpoint', '').strip()
+    p256dh   = data.get('keys', {}).get('p256dh', '').strip()
+    auth     = data.get('keys', {}).get('auth', '').strip()
+    if not endpoint or not p256dh or not auth:
+        return jsonify(error='Invalid subscription'), 400
+    # Upsert — update keys if endpoint already exists
+    sub = PushSubscription.query.filter_by(endpoint=endpoint).first()
+    if sub:
+        sub.p256dh  = p256dh
+        sub.auth    = auth
+        sub.user_id = current_user.id
+    else:
+        db.session.add(PushSubscription(
+            user_id=current_user.id, endpoint=endpoint, p256dh=p256dh, auth=auth
+        ))
+    db.session.commit()
+    return jsonify(ok=True)
+
+
+@app.route('/api/push/unsubscribe', methods=['POST'])
+@login_required
+def push_unsubscribe():
+    data = request.get_json(silent=True) or {}
+    endpoint = data.get('endpoint', '').strip()
+    if endpoint:
+        PushSubscription.query.filter_by(endpoint=endpoint).delete()
+        db.session.commit()
+    return jsonify(ok=True)
+
+
+@app.route('/sw.js')
+def service_worker():
+    return send_from_directory(app.static_folder, 'sw.js',
+                               mimetype='application/javascript')
 
 
 # ── Init ─────────────────────────────────────────────────────────────────────

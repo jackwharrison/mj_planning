@@ -132,7 +132,14 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
 .cat-pill:hover{border-color:var(--cat-accent);}
 .cat-pill .cp-icon{font-size:11px;line-height:1;}
 .cat-pill .cp-label{font-size:10px;}
-.pantry-unit{color:var(--ink4);font-size:11px;}
+.unit-select{
+  padding:4px 2px;border-radius:6px;border:1px solid var(--sep);
+  font-size:11px;font-family:inherit;color:var(--ink3);
+  background:var(--bg3);outline:none;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  text-align:center;width:100%;
+}
+.unit-select:focus{border-color:var(--blue);background:#fff;color:var(--ink);}
 .pantry-del{border:none;background:none;color:var(--ink4);cursor:pointer;font-size:14px;text-align:center;padding:0;}
 .pantry-del:hover{color:var(--pink);}
 .qty-input{width:100%;padding:4px 5px;border-radius:6px;border:1px solid var(--sep);font-size:12px;font-family:inherit;text-align:center;background:var(--bg3);outline:none;}
@@ -162,8 +169,61 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
 .cat-picker-item .cpi-label{flex:1;}
 .cat-picker-item.selected::after{content:"✓";color:var(--cat-accent);font-weight:700;font-size:13px;}
 
+/* Pantry: out-of-stock section */
+.oos-toggle{
+  display:flex;align-items:center;gap:8px;
+  padding:14px 16px;cursor:pointer;
+  background:var(--bg3);
+  font-size:13px;font-weight:600;color:var(--ink3);
+  user-select:none;transition:background 0.12s;
+  border:none;width:100%;text-align:left;font-family:inherit;
+}
+.oos-toggle:hover{background:rgba(0,0,0,0.04);}
+.oos-toggle .oos-arrow{
+  width:20px;height:20px;display:flex;align-items:center;justify-content:center;
+  transition:transform 0.2s;font-size:11px;color:var(--ink4);
+}
+.oos-toggle.open .oos-arrow{transform:rotate(90deg);}
+.oos-toggle .oos-count{
+  font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;
+  background:rgba(120,120,128,0.14);color:var(--ink4);margin-left:auto;
+}
+.oos-section{display:none;padding:0;}
+.oos-section.open{display:block;}
+.oos-row{
+  display:grid;grid-template-columns:1fr 70px 44px 26px;
+  align-items:center;gap:6px;padding:8px 16px;font-size:13px;
+  transition:background 0.1s;
+}
+.oos-row:hover{background:rgba(0,0,0,0.015);}
+.oos-name{display:flex;align-items:center;gap:6px;min-width:0;}
+.oos-name-text{font-weight:500;color:var(--ink3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.oos-row .unit-select{font-size:11px;}
+.oos-add{
+  width:36px;height:28px;border-radius:7px;border:1.5px solid var(--sep);
+  background:transparent;cursor:pointer;color:var(--teal);
+  font-size:16px;font-weight:600;font-family:inherit;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:all 0.12s;
+}
+.oos-add:hover{background:var(--teal-bg);border-color:var(--teal);}
+.oos-del{border:none;background:none;color:var(--ink4);cursor:pointer;font-size:14px;text-align:center;padding:0;}
+.oos-del:hover{color:var(--pink);}
+
+/* Recipe viewer modal */
+.rv-meta{font-size:13px;color:var(--ink3);margin-bottom:8px;}
+.rv-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;}
+.rv-source{margin-bottom:6px;}
+.rv-ings{padding:10px 14px!important;margin-bottom:0;}
+.rv-ing-row{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;border-bottom:1px solid var(--sep);}
+.rv-ing-row:last-child{border-bottom:none;}
+.rv-ing-qty{font-weight:600;color:var(--ink);min-width:48px;}
+.rv-ing-unit{color:var(--ink4);min-width:32px;font-size:12px;}
+.rv-ing-name{flex:1;color:var(--ink2);}
+.rv-instructions{padding:14px 16px!important;font-size:13px;line-height:1.7;color:var(--ink2);white-space:pre-wrap;}
+
 /* Recipes */
-.recipe-card{padding:16px;transition:background 0.12s;}
+.recipe-card{padding:16px;transition:background 0.12s;cursor:pointer;}
 .recipe-card:hover{background:rgba(0,0,0,0.015);}
 .recipe-name{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:3px;letter-spacing:-0.2px;}
 .recipe-meta{font-size:12px;color:var(--ink4);margin-bottom:5px;}
@@ -408,9 +468,12 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
   .cat-pill{padding:2px 7px 2px 5px;}
   .cat-pill .cp-label{max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .qty-input{padding:7px 6px;font-size:13px;height:32px;}
-  .pantry-unit{font-size:11px;}
+  .unit-select{font-size:11px;padding:6px 2px;}
   .pantry-del{font-size:18px;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border-radius:7px;}
   .pantry-del:hover{background:var(--pink-bg);}
+  .oos-row{grid-template-columns:1fr 58px 42px 28px;padding:10px 14px;gap:6px;}
+  .oos-add{width:40px;height:32px;font-size:18px;}
+  .oos-del{font-size:16px;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;}
 
   /* Shopping */
   .shop-row{padding:12px 14px;font-size:14px;gap:10px;}
@@ -459,6 +522,7 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
   .pantry-row{grid-template-columns:1fr 58px 28px 40px 28px;padding:9px 10px 9px 13px;gap:5px;font-size:12px;}
   .cat-pill .cp-label{display:none;}
   .cat-pill{padding:3px 5px;}
+  .oos-row{grid-template-columns:1fr 50px 36px 24px;padding:8px 10px;font-size:12px;}
 }
 </style>
 </head>
@@ -495,11 +559,11 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
   <nav class="drawer-nav">
     <a href="/">
       <svg viewBox="0 0 20 20" fill="none"><path d="M3 10l7-6 7 6v7a1 1 0 0 1-1 1h-4v-5H8v5H4a1 1 0 0 1-1-1v-7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-      Dashboard
+      Dashboard 🚧
     </a>
     <a href="/workouts">
       <svg viewBox="0 0 20 20" fill="none"><path d="M5 7v6M3 8v4M15 7v6M17 8v4M7 10h6M5.5 10h1M13.5 10h1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      Workouts
+      Workouts 🚧
     </a>
     <a href="/meals" class="active">
       <svg viewBox="0 0 20 20" fill="none"><path d="M4 3v7a2 2 0 0 0 2 2v5M6 3v5M8 3v5M14 3c-1.5 2-1.5 5 0 7v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
@@ -507,11 +571,11 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
     </a>
     <a href="/calendar">
       <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      Calendar
+      Calendar 🚧
     </a>
     <a href="/finance">
       <svg viewBox="0 0 20 20" fill="none"><path d="M10 3v14M13.5 6.5c0-1.4-1.6-2-3.5-2s-3.5.8-3.5 2.2c0 3 7 1.8 7 4.8 0 1.4-1.6 2.2-3.5 2.2s-3.5-.6-3.5-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      Finance
+      Finance 🚧
     </a>
   </nav>
   <div class="drawer-foot">
@@ -561,7 +625,7 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
         </div>
         {% for mp in meals_by_day.get(key, []) %}
         <div class="meal-chip {{ mp.meal_type }} {{ 'skipped' if not mp.cooked }}" title="{{ mp.display_name }}{% if not mp.cooked %} (skipped){% endif %}">
-          <span class="mc-name">{{ mp.display_name[:14] }}</span>
+          <span class="mc-name" {% if mp.recipe_id %}onclick="event.stopPropagation();openRecipeView({{ mp.recipe_id }})" style="cursor:pointer;"{% endif %}>{{ mp.display_name[:14] }}</span>
           <button class="mc-del" title="Toggle cooked" onclick="toggleCooked({{ mp.id }}, this.parentElement)">{% if mp.cooked %}✓{% else %}✗{% endif %}</button>
           <form method="POST" action="/meal-plans/{{ mp.id }}/delete?week_offset={{ week_offset }}" style="margin:0;display:inline;">
             <button type="submit" class="mc-del" title="Remove">×</button>
@@ -588,20 +652,20 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
     <div>
       <div class="card">
         <div class="card-head">
-          <span class="card-label">Pantry</span>
-          <span style="font-size:12px;color:var(--ink4);">{{ pantry|length }} items{% if low_stock_items %} · <span style="color:var(--amber);">{{ low_stock_items|length }} low</span>{% endif %}</span>
+          <span class="card-label">In stock</span>
+          <span style="font-size:12px;color:var(--ink4);">{{ pantry_in_stock|length }} items{% if low_stock_items %} · <span style="color:var(--amber);">{{ low_stock_items|length }} low</span>{% endif %}</span>
         </div>
         <div class="sep"></div>
-        {% if pantry %}
-          {# Build a quick lookup of category metadata so we can render
-             consistent colours, icons, and labels for each group. #}
-          {% set cat_map = {} %}
-          {% for c in food_categories %}{% set _ = cat_map.update({c.key: c}) %}{% endfor %}
+        {# Build category lookup — used by both in-stock and out-of-stock sections #}
+        {% set cat_map = {} %}
+        {% for c in food_categories %}{% set _ = cat_map.update({c.key: c}) %}{% endfor %}
+
+        {% if pantry_in_stock %}
           {% set current_cat = namespace(key='__none__') %}
           {% set group_counts = {} %}
-          {% for f in pantry %}{% set k = f.category or 'other' %}{% if k not in cat_map %}{% set k = 'other' %}{% endif %}{% set _ = group_counts.update({k: group_counts.get(k, 0) + 1}) %}{% endfor %}
+          {% for f in pantry_in_stock %}{% set k = f.category or 'other' %}{% if k not in cat_map %}{% set k = 'other' %}{% endif %}{% set _ = group_counts.update({k: group_counts.get(k, 0) + 1}) %}{% endfor %}
 
-          {% for f in pantry %}
+          {% for f in pantry_in_stock %}
             {% set ckey = f.category or 'other' %}{% if ckey not in cat_map %}{% set ckey = 'other' %}{% endif %}
             {% set cat = cat_map[ckey] %}
             {% if ckey != current_cat.key %}
@@ -621,7 +685,9 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
                 </button>
               </span>
               <input type="number" class="qty-input" value="{{ f.quantity }}" step="0.5" min="0" onchange="updateQty({{ f.id }},this.value)">
-              <span class="pantry-unit">{{ f.unit }}</span>
+              <select class="unit-select" onchange="updateUnit({{ f.id }},this.value)">
+                {% for u in ['pcs','g','kg','ml','l','cups','tbsp','tsp'] %}<option value="{{ u }}" {{ 'selected' if f.unit == u }}>{{ u }}</option>{% endfor %}
+              </select>
               <span style="text-align:center;font-size:11px;font-weight:600;">
                 {% if f.low_stock > 0 and f.quantity <= f.low_stock %}<span style="color:var(--amber);">Low</span>
                 {% elif f.low_stock > 0 %}<span style="color:var(--green);">OK</span>
@@ -631,7 +697,36 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
             </div>
           {% endfor %}
         {% else %}
-          <div class="empty-state">Pantry empty — add items to track what's at home.</div>
+          <div class="empty-state">Nothing in stock right now.</div>
+        {% endif %}
+
+        {# ── Out-of-stock / known items ── #}
+        {% if pantry_out_of_stock %}
+        <div class="sep"></div>
+        <button class="oos-toggle" type="button" onclick="toggleOos(this)" aria-expanded="false">
+          <span class="oos-arrow">▶</span>
+          Not in stock
+          <span class="oos-count">{{ pantry_out_of_stock|length }}</span>
+        </button>
+        <div class="oos-section" id="oos-section">
+          {% for f in pantry_out_of_stock %}
+            {% set ckey = f.category or 'other' %}{% if ckey not in cat_map %}{% set ckey = 'other' %}{% endif %}
+            {% set cat = cat_map[ckey] %}
+            <div class="oos-row cat-{{ cat.color }}" data-food-id="{{ f.id }}" data-cat="{{ ckey }}">
+              <span class="oos-name">
+                <button type="button" class="cat-pill" onclick="openCatPicker(event, {{ f.id }})" title="Change category">
+                  <span class="cp-icon">{{ cat.icon }}</span><span class="cp-label">{{ cat.label }}</span>
+                </button>
+                <span class="oos-name-text">{{ f.name }}</span>
+              </span>
+              <select class="unit-select" onchange="updateUnit({{ f.id }},this.value)">
+                {% for u in ['pcs','g','kg','ml','l','cups','tbsp','tsp'] %}<option value="{{ u }}" {{ 'selected' if f.unit == u }}>{{ u }}</option>{% endfor %}
+              </select>
+              <button type="button" class="oos-add" title="Set quantity" onclick="oosSetQty({{ f.id }}, '{{ f.name|e }}')" aria-label="Add to stock">+</button>
+              <form method="POST" action="/pantry/{{ f.id }}/delete" style="margin:0;" onsubmit="return confirm('Remove {{ f.name }}?')"><button type="submit" class="oos-del" title="Remove">×</button></form>
+            </div>
+          {% endfor %}
+        </div>
         {% endif %}
       </div>
     </div>
@@ -691,12 +786,12 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
     {% if recipes %}
       {% for r in recipes %}
       <div class="card">
-        <div class="recipe-card">
+        <div class="recipe-card" onclick="openRecipeView({{ r.id }})">
           <div class="recipe-name">{{ r.name }}</div>
           <div class="recipe-meta">{{ r.servings }} servings{% if r.prep_mins %} · {{ r.prep_mins }}m prep{% endif %}{% if r.cook_mins %} · {{ r.cook_mins }}m cook{% endif %} · {{ r.ingredients|length }} ingredients</div>
           {% if r.tags %}<div class="recipe-tags">{% for tag in r.tags.split(',') %}<span class="tag">{{ tag.strip() }}</span>{% endfor %}</div>{% endif %}
           {% if r.source_url %}
-          <a href="{{ r.source_url }}" class="recipe-link" target="_blank" rel="noopener">
+          <a href="{{ r.source_url }}" class="recipe-link" target="_blank" rel="noopener" onclick="event.stopPropagation()">
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M6 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1v-3M9 2h5v5M15 1L8 8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Source recipe
           </a>
@@ -704,7 +799,7 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
           {% if r.ingredients %}
           <div class="recipe-ings">{% for ing in r.ingredients %}{{ '%.4g'|format(ing.quantity) }} {{ ing.unit }} {{ ing.name }}{% if not loop.last %} · {% endif %}{% endfor %}</div>
           {% endif %}
-          <div class="recipe-actions">
+          <div class="recipe-actions" onclick="event.stopPropagation()">
             <a href="/recipes/{{ r.id }}/edit" class="rbtn rbtn-edit">✏ Edit</a>
             <button class="rbtn rbtn-shop" onclick="getShoppingList({{ r.id }})">🛒 Check pantry</button>
             <form method="POST" action="/recipes/{{ r.id }}/delete" style="margin:0;" onsubmit="return confirm('Delete recipe?')"><button type="submit" class="rbtn rbtn-del">Delete</button></form>
@@ -738,23 +833,42 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
       <div class="card" id="shopping-card">
         {% if shopping_list or custom_items %}
           {% if shopping_list %}
-          <div style="padding:8px 16px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink4);">From meal plan</div>
+          {# Group shopping items by category #}
+          {% set shop_cat_map = {} %}
+          {% for c in food_categories %}{% set _ = shop_cat_map.update({c.key: c}) %}{% endfor %}
+          {% set shop_groups = {} %}
           {% for item in shopping_list %}
-          <div class="sep"></div>
-          <div class="shop-row" data-name="{{ item.name }}" data-unit="{{ item.unit }}" data-auto="true">
-            <button class="shop-check" onclick="toggleShopCheck(this)"></button>
-            <span class="shop-name">{{ item.name }}</span>
-            <input type="number" class="shop-qty-input" value="{{ '%.4g'|format(item.quantity) }}" step="0.5" min="0">
-            <span class="shop-unit">{{ item.unit }}</span>
-          </div>
+            {% set ck = item.category or 'other' %}{% if ck not in shop_cat_map %}{% set ck = 'other' %}{% endif %}
+            {% if ck not in shop_groups %}{% set _ = shop_groups.update({ck: []}) %}{% endif %}
+            {% set _ = shop_groups[ck].append(item) %}
+          {% endfor %}
+          {% for c in food_categories %}
+            {% if c.key in shop_groups %}
+            <div class="pantry-cat-hdr cat-{{ c.color }}">
+              <span class="pch-icon">{{ c.icon }}</span>
+              <span class="pch-label">{{ c.label }}</span>
+              <span class="pch-count">{{ shop_groups[c.key]|length }}</span>
+            </div>
+            {% for item in shop_groups[c.key] %}
+            <div class="shop-row" data-name="{{ item.name }}" data-unit="{{ item.unit }}" data-auto="true">
+              <button class="shop-check" onclick="toggleShopCheck(this)"></button>
+              <span class="shop-name">{{ item.name }}</span>
+              <input type="number" class="shop-qty-input" value="{{ '%.4g'|format(item.quantity) }}" step="0.5" min="0">
+              <span class="shop-unit">{{ item.unit }}</span>
+            </div>
+            {% endfor %}
+            <div class="sep"></div>
+            {% endif %}
           {% endfor %}
           {% endif %}
 
           {% if custom_items %}
-          <div class="sep"></div>
-          <div style="padding:8px 16px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink4);">Custom items</div>
+          <div class="pantry-cat-hdr cat-gray">
+            <span class="pch-icon">🛒</span>
+            <span class="pch-label">Custom items</span>
+            <span class="pch-count">{{ custom_items|length }}</span>
+          </div>
           {% for ci in custom_items %}
-          <div class="sep"></div>
           <div class="shop-row" data-name="{{ ci.name }}" data-unit="{{ ci.unit }}" data-auto="false" data-food="{{ 'true' if ci.is_food else 'false' }}">
             <button class="shop-check" onclick="toggleShopCheck(this)"></button>
             <span class="shop-name">{{ ci.name }}{% if not ci.is_food %} <span style="font-size:9px;color:var(--ink4);font-weight:400;">(non-food)</span>{% endif %}</span>
@@ -853,6 +967,37 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
   </div>
 </div>
 
+<!-- ═══ RECIPE VIEWER MODAL ═══ -->
+<div class="modal-bg" id="recipe-view-modal" onclick="if(event.target===this)closeRecipeView()">
+  <div class="modal modal-lg">
+    <div class="modal-header-row">
+      <div class="modal-title" id="rv-name">…</div>
+      <button class="modal-close" type="button" onclick="closeRecipeView()" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div id="rv-loading" style="text-align:center;padding:24px;color:var(--ink4);">Loading…</div>
+    <div id="rv-body" style="display:none;">
+      <div class="rv-meta" id="rv-meta"></div>
+      <div class="rv-tags" id="rv-tags"></div>
+      <div class="rv-source" id="rv-source-wrap" style="display:none;">
+        <a id="rv-source" href="#" target="_blank" rel="noopener" class="recipe-link">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M6 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1v-3M9 2h5v5M15 1L8 8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Source recipe
+        </a>
+      </div>
+      <div class="section-label" style="margin-top:12px;">Ingredients</div>
+      <div class="rv-ings card" id="rv-ings"></div>
+      <div class="section-label" id="rv-instr-label" style="display:none;margin-top:12px;">Instructions</div>
+      <div class="rv-instructions card" id="rv-instructions" style="display:none;"></div>
+      <div class="modal-actions">
+        <a class="btn btn-ghost" id="rv-edit-link" href="#">✏ Edit</a>
+        <button class="btn btn-primary" onclick="closeRecipeView()">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ ADD MEAL MODAL ═══ -->
 <div class="modal-bg" id="add-meal-modal" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal">
@@ -911,6 +1056,31 @@ function openAddMeal(dateStr) {
 
 function updateQty(fid, val) {
   fetch('/pantry/' + fid + '/update', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'quantity=' + val});
+}
+function updateUnit(fid, val) {
+  fetch('/pantry/' + fid + '/update', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({unit: val})});
+}
+
+// ═══ Out-of-stock section ═══
+function toggleOos(btn){
+  const section = document.getElementById('oos-section');
+  const isOpen = section.classList.toggle('open');
+  btn.classList.toggle('open', isOpen);
+  btn.setAttribute('aria-expanded', isOpen);
+}
+
+function oosSetQty(foodId, name){
+  const qty = prompt('How much ' + name + ' do you have?', '1');
+  if (qty === null) return; // cancelled
+  const val = parseFloat(qty);
+  if (isNaN(val) || val <= 0) return;
+  fetch('/pantry/' + foodId + '/update', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({quantity: val}),
+  }).then(r => {
+    if (r.ok) window.location.reload();
+  });
 }
 
 // ═══ Category picker ═══
@@ -1061,6 +1231,82 @@ function getShoppingList(rid) {
     document.getElementById('recipe-shop-result').style.display = 'block';
     switchTab('shopping');
   });
+}
+
+// ═══ Recipe viewer popup ═══
+function openRecipeView(rid){
+  const modal = document.getElementById('recipe-view-modal');
+  const loading = document.getElementById('rv-loading');
+  const body = document.getElementById('rv-body');
+  document.getElementById('rv-name').textContent = '…';
+  loading.style.display = 'block';
+  body.style.display = 'none';
+  modal.classList.add('open');
+
+  fetch('/api/recipes/' + rid)
+    .then(r => r.json())
+    .then(r => {
+      document.getElementById('rv-name').textContent = r.name;
+      document.getElementById('rv-meta').textContent =
+        r.servings + ' servings' +
+        (r.prep_mins ? ' · ' + r.prep_mins + 'm prep' : '') +
+        (r.cook_mins ? ' · ' + r.cook_mins + 'm cook' : '') +
+        ' · ' + r.ingredients.length + ' ingredients';
+
+      // Tags
+      const tagsEl = document.getElementById('rv-tags');
+      tagsEl.innerHTML = r.tags.map(t => '<span class="tag">' + escapeHtml(t) + '</span>').join('');
+
+      // Source
+      const srcWrap = document.getElementById('rv-source-wrap');
+      if (r.source_url) {
+        document.getElementById('rv-source').href = r.source_url;
+        srcWrap.style.display = 'block';
+      } else {
+        srcWrap.style.display = 'none';
+      }
+
+      // Ingredients
+      const ingsEl = document.getElementById('rv-ings');
+      if (r.ingredients.length) {
+        ingsEl.innerHTML = r.ingredients.map(ing =>
+          '<div class="rv-ing-row">' +
+            '<span class="rv-ing-qty">' + fmtQty(ing.quantity) + '</span>' +
+            '<span class="rv-ing-unit">' + escapeHtml(ing.unit) + '</span>' +
+            '<span class="rv-ing-name">' + escapeHtml(ing.name) + '</span>' +
+          '</div>'
+        ).join('');
+        ingsEl.style.display = 'block';
+      } else {
+        ingsEl.innerHTML = '<div style="padding:8px;color:var(--ink4);font-size:13px;">No ingredients listed.</div>';
+        ingsEl.style.display = 'block';
+      }
+
+      // Instructions
+      const instrEl = document.getElementById('rv-instructions');
+      const instrLabel = document.getElementById('rv-instr-label');
+      if (r.instructions && r.instructions.trim()) {
+        instrEl.textContent = r.instructions;
+        instrEl.style.display = 'block';
+        instrLabel.style.display = 'block';
+      } else {
+        instrEl.style.display = 'none';
+        instrLabel.style.display = 'none';
+      }
+
+      // Edit link
+      document.getElementById('rv-edit-link').href = '/recipes/' + rid + '/edit';
+
+      loading.style.display = 'none';
+      body.style.display = 'block';
+    })
+    .catch(() => {
+      loading.textContent = 'Could not load recipe.';
+    });
+}
+
+function closeRecipeView(){
+  document.getElementById('recipe-view-modal').classList.remove('open');
 }
 
 // ═══ New recipe modal ═══
@@ -1279,6 +1525,86 @@ function fmtQty(q){
 }
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+</script>
+
+<script>
+// ── Auto-logout after 30 minutes of inactivity ──
+(function(){
+  const TIMEOUT_MS = 30 * 60 * 1000;
+  const WARN_MS    = 60 * 1000;
+  let logoutTimer, warnTimer, banner;
+  function resetTimers(){
+    clearTimeout(logoutTimer);
+    clearTimeout(warnTimer);
+    if(banner){ banner.remove(); banner=null; }
+    warnTimer   = setTimeout(showWarning, TIMEOUT_MS - WARN_MS);
+    logoutTimer = setTimeout(()=>{ window.location.href='/logout'; }, TIMEOUT_MS);
+  }
+  function showWarning(){
+    if(banner) return;
+    banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1C1C1E;color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:500;z-index:9999;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap;';
+    banner.innerHTML = '⏱ You\'ll be signed out in 1 minute due to inactivity. <button onclick="resetTimers()" style="background:var(--teal,#30B98A);border:none;color:#fff;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Stay signed in</button>';
+    document.body.appendChild(banner);
+  }
+  ['mousemove','keydown','click','scroll','touchstart','pointerdown'].forEach(ev=>{
+    document.addEventListener(ev, resetTimers, {passive:true});
+  });
+  resetTimers();
+})();
+</script>
+<script>
+// ── Web Push registration ──
+(async function () {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+  try {
+    // Register the service worker
+    const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+    await navigator.serviceWorker.ready;
+
+    // Check current permission
+    if (Notification.permission === 'denied') return;
+
+    // Fetch the VAPID public key
+    const keyRes = await fetch('/api/push/vapid-public-key');
+    const { key } = await keyRes.json();
+    if (!key) return;
+
+    // Check if already subscribed
+    let sub = await reg.pushManager.getSubscription();
+
+    if (!sub) {
+      // Only prompt if user hasn't been asked before
+      if (Notification.permission === 'default') {
+        const perm = await Notification.requestPermission();
+        if (perm !== 'granted') return;
+      }
+      // Subscribe
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly:      true,
+        applicationServerKey: urlBase64ToUint8Array(key),
+      });
+    }
+
+    // Register subscription with server
+    await fetch('/api/push/subscribe', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(sub.toJSON()),
+    });
+
+  } catch (err) {
+    console.warn('[push] Registration failed:', err);
+  }
+})();
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 }
 </script>
 </body>
