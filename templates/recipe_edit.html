@@ -114,6 +114,9 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
   .ing-row{grid-template-columns:1fr 52px 60px 28px;gap:4px;}
   .ing-row input,.ing-row select{padding:8px 6px;font-size:12px;}
 }
+.sp{display:flex;gap:3px;}
+.sp-star{font-size:24px;cursor:pointer;color:var(--sep-strong);transition:color 0.12s;user-select:none;}
+.sp-star.on{color:var(--amber);}
 </style>
 </head>
 <body>
@@ -174,6 +177,24 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
       <div class="fg">
         <label>Source link (optional)</label>
         <input class="input" type="url" name="source_url" value="{{ recipe.source_url or '' }}" placeholder="https://…">
+      </div>
+      <div class="fg">
+        <label>Rating</label>
+        <div class="sp" id="edit-sp" data-val="{{ recipe.star_rating or 0 }}">
+          {% for i in range(1,6) %}
+          <span class="sp-star {{ 'on' if (recipe.star_rating or 0) >= i }}" data-v="{{ i }}" onclick="setStar('edit-sp',{{ i }})">★</span>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="star_rating" id="edit-star-rating" value="{{ recipe.star_rating or 0 }}">
+      </div>
+      <div class="fg">
+        <label>Macros <span style="font-weight:400;color:var(--ink4);">(per serving, optional)</span></label>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:4px;">
+          <input class="input" type="number" name="kcal" min="0" placeholder="kcal" value="{{ recipe.kcal or '' }}" style="font-size:12px;padding:6px 8px;">
+          <input class="input" type="number" name="protein_g" min="0" step="0.1" placeholder="protein g" value="{{ recipe.protein_g or '' }}" style="font-size:12px;padding:6px 8px;">
+          <input class="input" type="number" name="carbs_g" min="0" step="0.1" placeholder="carbs g" value="{{ recipe.carbs_g or '' }}" style="font-size:12px;padding:6px 8px;">
+          <input class="input" type="number" name="fat_g" min="0" step="0.1" placeholder="fat g" value="{{ recipe.fat_g or '' }}" style="font-size:12px;padding:6px 8px;">
+        </div>
       </div>
     </div>
 
@@ -352,6 +373,20 @@ async function createAndPick(row, name){
 
 function fmtQty(q){ return Number.isInteger(q) ? q.toString() : q.toFixed(2).replace(/\.?0+$/, ''); }
 function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function setStar(pickerId, val) {
+  const el = document.getElementById(pickerId);
+  if (!el) return;
+  el.dataset.val = val;
+  el.querySelectorAll('.sp-star').forEach(s => {
+    s.classList.toggle('on', parseInt(s.dataset.v) <= val);
+  });
+  const form = el.closest('form');
+  if (form) {
+    const hidden = form.querySelector('input[name="star_rating"]');
+    if (hidden) hidden.value = val;
+  }
+}
 
 // Pre-populate existing ingredients on load
 window.addEventListener('DOMContentLoaded', function(){

@@ -74,10 +74,12 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
 .wd-name{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--ink4);letter-spacing:0.04em;}
 .wd-num{font-size:15px;font-weight:600;color:var(--ink);}
 .meal-chip{display:flex;align-items:center;font-size:10px;font-weight:500;padding:3px 6px;border-radius:6px;margin-bottom:3px;gap:2px;line-height:1.3;}
-.meal-chip .mc-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.meal-chip .mc-name{flex:1;overflow:hidden;word-break:break-word;white-space:normal;}
 .meal-chip.breakfast{background:var(--amber-bg);color:var(--amber-t);}
 .meal-chip.lunch{background:var(--blue-bg);color:var(--blue-t);}
 .meal-chip.dinner{background:var(--teal-bg);color:var(--teal-t);}
+.meal-chip.dinner.jack{background:var(--blue-bg);color:var(--blue-t);}
+.meal-chip.dinner.minke{background:var(--pink-bg);color:var(--pink-t);}
 .meal-chip.snack{background:var(--purple-bg);color:var(--purple-t);}
 .meal-chip.skipped{opacity:0.45;text-decoration:line-through;}
 .mc-del{border:none;background:none;color:inherit;cursor:pointer;font-size:12px;opacity:0.5;padding:0 1px;line-height:1;flex-shrink:0;}
@@ -115,7 +117,7 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
 .pantry-cat-hdr .pch-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--cat-fg);flex:1;}
 .pantry-cat-hdr .pch-count{font-size:11px;font-weight:600;color:var(--cat-fg);opacity:0.7;}
 
-.pantry-row{display:grid;grid-template-columns:1fr 80px 44px 60px 26px;align-items:center;gap:6px;padding:8px 16px 8px 19px;font-size:13px;transition:background 0.1s;border-left:3px solid var(--cat-accent, transparent);}
+.pantry-row{display:grid;grid-template-columns:1fr 80px 60px 26px;align-items:center;gap:6px;padding:8px 16px 8px 19px;font-size:13px;transition:background 0.1s;border-left:3px solid var(--cat-accent, transparent);}
 .pantry-row:hover{background:rgba(0,0,0,0.015);}
 .pantry-name-wrap{display:flex;align-items:center;gap:8px;min-width:0;}
 .pantry-name{font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -325,6 +327,30 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
 .ing-add-btn:hover{border-color:var(--teal);color:var(--teal-t);background:var(--teal-bg);}
 
 
+/* Star rating */
+.stars{display:flex;gap:2px;align-items:center;}
+.star{font-size:14px;color:var(--amber);line-height:1;}
+.star.empty{color:var(--sep-strong);}
+.star-picker{display:flex;gap:4px;margin-bottom:4px;}
+.star-picker input{display:none;}
+.star-picker label{font-size:22px;cursor:pointer;color:var(--sep-strong);transition:color 0.1s;}
+.star-picker input:checked ~ label,.star-picker label:hover,.star-picker label:hover ~ label{color:var(--amber);}
+.star-picker{flex-direction:row-reverse;justify-content:flex-end;}
+.star-picker label:hover,.star-picker label:hover ~ label,.star-picker input:checked ~ label{color:var(--sep-strong);}
+.star-picker input:checked ~ label,.star-picker label:hover ~ label{color:var(--sep-strong);}
+/* Correct star picker — right to left trick */
+.sp{display:flex;gap:3px;flex-direction:row;}
+.sp-star{font-size:24px;cursor:pointer;color:var(--sep-strong);transition:color 0.12s;user-select:none;}
+.sp-star.on{color:var(--amber);}
+
+/* Macro pills */
+.macro-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px;}
+.macro-pill{font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--bg3);color:var(--ink3);}
+.macro-pill.kcal{background:var(--amber-bg);color:var(--amber-t);}
+.macro-pill.protein{background:var(--blue-bg);color:var(--blue-t);}
+.macro-pill.carbs{background:var(--teal-bg);color:var(--teal-t);}
+.macro-pill.fat{background:var(--purple-bg);color:var(--purple-t);}
+.macro-inputs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:4px;}
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:500;align-items:center;justify-content:center;}
 .modal-bg.open{display:flex;}
 .modal{background:var(--bg2);border-radius:var(--r-lg);box-shadow:0 20px 60px rgba(0,0,0,0.2);width:92%;max-width:480px;padding:22px;animation:popIn 0.25s cubic-bezier(0.34,1.4,0.64,1);max-height:90vh;overflow-y:auto;}
@@ -430,9 +456,9 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
     font-size:13px;font-weight:500;
     padding:10px 12px;border-radius:10px;
     margin-bottom:4px;gap:8px;
-    min-height:40px;
+    min-height:40px;align-items:flex-start;
   }
-  .meal-chip .mc-name{font-size:13px;line-height:1.3;}
+  .meal-chip .mc-name{font-size:13px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
   .mc-del{
     font-size:15px;padding:4px 6px;
     width:28px;height:28px;
@@ -458,8 +484,8 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
 
   /* Pantry — bigger touch targets */
   .pantry-row{
-    grid-template-columns:1fr 70px 34px 50px 32px;
-    padding:10px 14px 10px 17px;font-size:13px;gap:7px;
+    grid-template-columns:1fr 70px 60px 28px;
+    padding:10px 14px 10px 17px;font-size:13px;gap:6px;
     align-items:center;
   }
   .pantry-cat-hdr{padding:12px 14px 8px;}
@@ -559,11 +585,11 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
   <nav class="drawer-nav">
     <a href="/">
       <svg viewBox="0 0 20 20" fill="none"><path d="M3 10l7-6 7 6v7a1 1 0 0 1-1 1h-4v-5H8v5H4a1 1 0 0 1-1-1v-7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-      Dashboard 🚧
+      Dashboard
     </a>
     <a href="/workouts">
       <svg viewBox="0 0 20 20" fill="none"><path d="M5 7v6M3 8v4M15 7v6M17 8v4M7 10h6M5.5 10h1M13.5 10h1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      Workouts 🚧
+      Workouts
     </a>
     <a href="/meals" class="active">
       <svg viewBox="0 0 20 20" fill="none"><path d="M4 3v7a2 2 0 0 0 2 2v5M6 3v5M8 3v5M14 3c-1.5 2-1.5 5 0 7v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
@@ -571,11 +597,11 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
     </a>
     <a href="/calendar">
       <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      Calendar 🚧
+      Calendar
     </a>
     <a href="/finance">
       <svg viewBox="0 0 20 20" fill="none"><path d="M10 3v14M13.5 6.5c0-1.4-1.6-2-3.5-2s-3.5.8-3.5 2.2c0 3 7 1.8 7 4.8 0 1.4-1.6 2.2-3.5 2.2s-3.5-.6-3.5-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      Finance 🚧
+      Finance
     </a>
   </nav>
   <div class="drawer-foot">
@@ -624,8 +650,8 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
           <div class="wd-num">{{ d.strftime('%d') }}</div>
         </div>
         {% for mp in meals_by_day.get(key, []) %}
-        <div class="meal-chip {{ mp.meal_type }} {{ 'skipped' if not mp.cooked }}" title="{{ mp.display_name }}{% if not mp.cooked %} (skipped){% endif %}">
-          <span class="mc-name" {% if mp.recipe_id %}onclick="event.stopPropagation();openRecipeView({{ mp.recipe_id }})" style="cursor:pointer;"{% endif %}>{{ mp.display_name[:14] }}</span>
+        <div class="meal-chip {{ mp.meal_type }}{% if mp.meal_type == 'dinner' %} {{ mp.assignee }}{% endif %} {{ 'skipped' if not mp.cooked }}" title="{{ mp.display_name }}{% if not mp.cooked %} (skipped){% endif %}">
+          <span class="mc-name" {% if mp.recipe_id %}onclick="event.stopPropagation();openRecipeView({{ mp.recipe_id }})" style="cursor:pointer;"{% endif %}>{{ mp.display_name }}</span>
           <button class="mc-del" title="Toggle cooked" onclick="toggleCooked({{ mp.id }}, this.parentElement)">{% if mp.cooked %}✓{% else %}✗{% endif %}</button>
           <form method="POST" action="/meal-plans/{{ mp.id }}/delete?week_offset={{ week_offset }}" style="margin:0;display:inline;">
             <button type="submit" class="mc-del" title="Remove">×</button>
@@ -688,11 +714,6 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
               <select class="unit-select" onchange="updateUnit({{ f.id }},this.value)">
                 {% for u in ['pcs','g','kg','ml','l','cups','tbsp','tsp'] %}<option value="{{ u }}" {{ 'selected' if f.unit == u }}>{{ u }}</option>{% endfor %}
               </select>
-              <span style="text-align:center;font-size:11px;font-weight:600;">
-                {% if f.low_stock > 0 and f.quantity <= f.low_stock %}<span style="color:var(--amber);">Low</span>
-                {% elif f.low_stock > 0 %}<span style="color:var(--green);">OK</span>
-                {% else %}<span style="color:var(--ink4);">—</span>{% endif %}
-              </span>
               <form method="POST" action="/pantry/{{ f.id }}/delete" style="margin:0;" onsubmit="return confirm('Remove?')"><button type="submit" class="pantry-del">×</button></form>
             </div>
           {% endfor %}
@@ -787,8 +808,21 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
       {% for r in recipes %}
       <div class="card">
         <div class="recipe-card" onclick="openRecipeView({{ r.id }})">
-          <div class="recipe-name">{{ r.name }}</div>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:3px;">
+            <div class="recipe-name">{{ r.name }}</div>
+            {% if r.star_rating %}
+            <div class="stars" style="flex-shrink:0;margin-top:2px;">{% for i in range(r.star_rating) %}<span class="star">★</span>{% endfor %}{% for i in range(5 - r.star_rating) %}<span class="star empty">★</span>{% endfor %}</div>
+            {% endif %}
+          </div>
           <div class="recipe-meta">{{ r.servings }} servings{% if r.prep_mins %} · {{ r.prep_mins }}m prep{% endif %}{% if r.cook_mins %} · {{ r.cook_mins }}m cook{% endif %} · {{ r.ingredients|length }} ingredients</div>
+          {% if r.kcal or r.protein_g or r.carbs_g or r.fat_g %}
+          <div class="macro-row">
+            {% if r.kcal %}<span class="macro-pill kcal">🔥 {{ r.kcal }} kcal</span>{% endif %}
+            {% if r.protein_g %}<span class="macro-pill protein">💪 {{ r.protein_g|int }}g protein</span>{% endif %}
+            {% if r.carbs_g %}<span class="macro-pill carbs">🌾 {{ r.carbs_g|int }}g carbs</span>{% endif %}
+            {% if r.fat_g %}<span class="macro-pill fat">🫒 {{ r.fat_g|int }}g fat</span>{% endif %}
+          </div>
+          {% endif %}
           {% if r.tags %}<div class="recipe-tags">{% for tag in r.tags.split(',') %}<span class="tag">{{ tag.strip() }}</span>{% endfor %}</div>{% endif %}
           {% if r.source_url %}
           <a href="{{ r.source_url }}" class="recipe-link" target="_blank" rel="noopener" onclick="event.stopPropagation()">
@@ -952,6 +986,26 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
       </div>
       <div class="fg"><label>Tags</label><input class="input" type="text" name="tags" placeholder="quick, pasta…"></div>
       <div class="fg"><label>Source link (optional)</label><input class="input" type="url" name="source_url" placeholder="https://…"></div>
+      <div class="fg">
+        <label>Rating</label>
+        <div class="sp" id="new-sp" data-val="0">
+          <span class="sp-star" data-v="1" onclick="setStar('new-sp',1)">★</span>
+          <span class="sp-star" data-v="2" onclick="setStar('new-sp',2)">★</span>
+          <span class="sp-star" data-v="3" onclick="setStar('new-sp',3)">★</span>
+          <span class="sp-star" data-v="4" onclick="setStar('new-sp',4)">★</span>
+          <span class="sp-star" data-v="5" onclick="setStar('new-sp',5)">★</span>
+        </div>
+        <input type="hidden" name="star_rating" id="new-star-rating" value="0">
+      </div>
+      <div class="fg">
+        <label>Macros <span style="font-weight:400;color:var(--ink4);">(per serving, optional)</span></label>
+        <div class="macro-inputs">
+          <input class="input" type="number" name="kcal" min="0" placeholder="kcal" style="font-size:12px;padding:6px 8px;">
+          <input class="input" type="number" name="protein_g" min="0" step="0.1" placeholder="protein g" style="font-size:12px;padding:6px 8px;">
+          <input class="input" type="number" name="carbs_g" min="0" step="0.1" placeholder="carbs g" style="font-size:12px;padding:6px 8px;">
+          <input class="input" type="number" name="fat_g" min="0" step="0.1" placeholder="fat g" style="font-size:12px;padding:6px 8px;">
+        </div>
+      </div>
 
       <div class="section-label" style="margin-top:4px;">Ingredients</div>
       <div class="ing-hint">Start typing — matching pantry items appear. New names get added to your pantry automatically.</div>
@@ -1122,19 +1176,20 @@ function closeCatPicker(){
 async function pickCategory(catKey){
   if (!_pickerFoodId) return;
   const foodId = _pickerFoodId;
-  const row = document.querySelector('.pantry-row[data-food-id="' + foodId + '"]');
+  // Support both in-stock pantry rows and out-of-stock rows
+  const row = document.querySelector('.pantry-row[data-food-id="' + foodId + '"]')
+           || document.querySelector('.oos-row[data-food-id="' + foodId + '"]');
   closeCatPicker();
   if (!row || row.dataset.cat === catKey) return;
 
-  // Optimistic UI update — apply colour class & pill content immediately.
   const cat = FOOD_CAT_BY_KEY[catKey] || FOOD_CAT_BY_KEY.other;
-  const prevCatClass = 'cat-' + (FOOD_CAT_BY_KEY[row.dataset.cat]?.color || 'gray');
-  row.classList.remove(prevCatClass);
+  const prevColor = 'cat-' + (FOOD_CAT_BY_KEY[row.dataset.cat]?.color || 'gray');
+  row.classList.remove(prevColor);
   row.classList.add('cat-' + cat.color);
   row.dataset.cat = catKey;
   const pill = row.querySelector('.cat-pill');
   if (pill){
-    pill.classList.remove(prevCatClass);
+    pill.classList.remove(prevColor);
     pill.classList.add('cat-' + cat.color);
     pill.querySelector('.cp-icon').textContent = cat.icon;
     pill.querySelector('.cp-label').textContent = cat.label;
@@ -1147,13 +1202,10 @@ async function pickCategory(catKey){
       body: JSON.stringify({category: catKey}),
     });
     if (!res.ok) throw new Error();
-    // Reload so the item drops into its new group in sort order.
-    // Small delay lets the optimistic colour-change animation settle.
     setTimeout(() => window.location.reload(), 180);
   } catch (err) {
-    // Revert on failure
     row.classList.remove('cat-' + cat.color);
-    row.classList.add(prevCatClass);
+    row.classList.add(prevColor);
     alert('Could not update category — try again.');
   }
 }
@@ -1526,84 +1578,56 @@ function fmtQty(q){
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
+
+// ═══ Star picker ═══
+function setStar(pickerId, val) {
+  const el = document.getElementById(pickerId);
+  if (!el) return;
+  el.dataset.val = val;
+  el.querySelectorAll('.sp-star').forEach(s => {
+    s.classList.toggle('on', parseInt(s.dataset.v) <= val);
+  });
+  // Update corresponding hidden input
+  const form = el.closest('form');
+  if (form) {
+    const hidden = form.querySelector('input[name="star_rating"]');
+    if (hidden) hidden.value = val;
+  }
+}
 </script>
 
-<script>
-// ── Auto-logout after 30 minutes of inactivity ──
-(function(){
-  const TIMEOUT_MS = 30 * 60 * 1000;
-  const WARN_MS    = 60 * 1000;
-  let logoutTimer, warnTimer, banner;
-  function resetTimers(){
-    clearTimeout(logoutTimer);
-    clearTimeout(warnTimer);
-    if(banner){ banner.remove(); banner=null; }
-    warnTimer   = setTimeout(showWarning, TIMEOUT_MS - WARN_MS);
-    logoutTimer = setTimeout(()=>{ window.location.href='/logout'; }, TIMEOUT_MS);
-  }
-  function showWarning(){
-    if(banner) return;
-    banner = document.createElement('div');
-    banner.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1C1C1E;color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:500;z-index:9999;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap;';
-    banner.innerHTML = '⏱ You\'ll be signed out in 1 minute due to inactivity. <button onclick="resetTimers()" style="background:var(--teal,#30B98A);border:none;color:#fff;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Stay signed in</button>';
-    document.body.appendChild(banner);
-  }
-  ['mousemove','keydown','click','scroll','touchstart','pointerdown'].forEach(ev=>{
-    document.addEventListener(ev, resetTimers, {passive:true});
-  });
-  resetTimers();
-})();
-</script>
 <script>
 // ── Web Push registration ──
 (async function () {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-
   try {
-    // Register the service worker
     const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
     await navigator.serviceWorker.ready;
-
-    // Check current permission
     if (Notification.permission === 'denied') return;
-
-    // Fetch the VAPID public key
     const keyRes = await fetch('/api/push/vapid-public-key');
     const { key } = await keyRes.json();
     if (!key) return;
-
-    // Check if already subscribed
     let sub = await reg.pushManager.getSubscription();
-
     if (!sub) {
-      // Only prompt if user hasn't been asked before
       if (Notification.permission === 'default') {
         const perm = await Notification.requestPermission();
         if (perm !== 'granted') return;
       }
-      // Subscribe
       sub = await reg.pushManager.subscribe({
-        userVisibleOnly:      true,
+        userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(key),
       });
     }
-
-    // Register subscription with server
     await fetch('/api/push/subscribe', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(sub.toJSON()),
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(sub.toJSON()),
     });
-
-  } catch (err) {
-    console.warn('[push] Registration failed:', err);
-  }
+  } catch (err) { console.warn('[push]', err); }
 })();
-
-function urlBase64ToUint8Array(base64String) {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const raw = atob(base64);
+function urlBase64ToUint8Array(b64){
+  const pad = '='.repeat((4 - b64.length % 4) % 4);
+  const raw = atob((b64 + pad).replace(/-/g,'+').replace(/_/g,'/'));
   return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 }
 </script>

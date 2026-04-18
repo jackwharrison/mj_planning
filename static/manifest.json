@@ -1,6 +1,6 @@
 {
-  "name": "Harrison Household",
-  "short_name": "Harrison Household",
+  "name": "Jack and Minke's Household Planner",
+  "short_name": "J&M",
   "description": "Planning, meals, workouts, calendar & finance for Jack and Minke",
   "start_url": "/",
   "scope": "/",

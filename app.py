@@ -7,7 +7,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, date, timedelta
 import smtplib, os, uuid, json
-from pywebpush import webpush, WebPushException
+try:
+    from pywebpush import webpush, WebPushException
+    _push_available = True
+except ImportError:
+    _push_available = False
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
@@ -513,8 +517,13 @@ class Recipe(db.Model):
     prep_mins   = db.Column(db.Integer, default=0)
     cook_mins   = db.Column(db.Integer, default=0)
     instructions = db.Column(db.Text, default='')
-    source_url  = db.Column(db.String(2000), default='')     # link to original recipe
-    tags        = db.Column(db.String(500), default='')      # comma-separated: quick, vegan…
+    source_url  = db.Column(db.String(2000), default='')
+    tags        = db.Column(db.String(500), default='')
+    star_rating = db.Column(db.Integer, default=0)       # 0-5 stars
+    kcal        = db.Column(db.Integer, nullable=True)    # per serving
+    protein_g   = db.Column(db.Float,   nullable=True)
+    carbs_g     = db.Column(db.Float,   nullable=True)
+    fat_g       = db.Column(db.Float,   nullable=True)
     created_at  = db.Column(db.DateTime, default=datetime.utcnow)
     ingredients = db.relationship('RecipeIngredient', backref='recipe', lazy=True,
                                    cascade='all, delete-orphan')
@@ -1413,6 +1422,11 @@ def recipe_new():
             instructions = request.form.get('instructions', '').strip(),
             source_url   = request.form.get('source_url', '').strip(),
             tags         = request.form.get('tags', '').strip(),
+            star_rating  = int(request.form.get('star_rating', 0) or 0),
+            kcal         = int(request.form.get('kcal') or 0) or None,
+            protein_g    = float(request.form.get('protein_g') or 0) or None,
+            carbs_g      = float(request.form.get('carbs_g') or 0) or None,
+            fat_g        = float(request.form.get('fat_g') or 0) or None,
         )
         db.session.add(r)
         db.session.flush()
@@ -1433,6 +1447,11 @@ def recipe_edit(rid):
         r.instructions = request.form.get('instructions', '').strip()
         r.source_url   = request.form.get('source_url', '').strip()
         r.tags         = request.form.get('tags', '').strip()
+        r.star_rating  = int(request.form.get('star_rating', 0) or 0)
+        r.kcal         = int(request.form.get('kcal') or 0) or None
+        r.protein_g    = float(request.form.get('protein_g') or 0) or None
+        r.carbs_g      = float(request.form.get('carbs_g') or 0) or None
+        r.fat_g        = float(request.form.get('fat_g') or 0) or None
         # Clear and re-add ingredients
         RecipeIngredient.query.filter_by(recipe_id=r.id).delete()
         _save_recipe_ingredients(r.id, request.form)
@@ -1641,7 +1660,7 @@ def shopping_add_custom():
             is_food  = request.form.get('is_food') == 'on',
         ))
         db.session.commit()
-        notify_shopping_updated(current_user.id, 'add', name)
+        _notify_shopping_updated(current_user.id, 'add', name)
     return redirect('/meals#shopping')
 
 
@@ -1652,7 +1671,7 @@ def shopping_item_delete(sid):
     name = si.name
     db.session.delete(si)
     db.session.commit()
-    notify_shopping_updated(current_user.id, 'remove', name)
+    _notify_shopping_updated(current_user.id, 'remove', name)
     return redirect('/meals#shopping')
 
 
@@ -1686,44 +1705,32 @@ def shopping_complete():
 
 # ── Push notification helpers ─────────────────────────────────────────────────
 
-def send_push_to_user(user_id, title, body, url='/meals'):
-    """Send a push notification to all subscribed devices for a user."""
-    if not VAPID_PRIVATE_KEY or not VAPID_PUBLIC_KEY:
-        app.logger.info('[push] VAPID keys not configured — skipping')
+def _send_push(user_id, title, body, url='/meals'):
+    if not _push_available or not VAPID_PRIVATE_KEY or not VAPID_PUBLIC_KEY:
         return
     subs = PushSubscription.query.filter_by(user_id=user_id).all()
     for sub in subs:
         try:
             webpush(
-                subscription_info={
-                    'endpoint': sub.endpoint,
-                    'keys': {'p256dh': sub.p256dh, 'auth': sub.auth},
-                },
-                data=json.dumps({'title': title, 'body': body, 'url': url,
-                                 'icon': '/static/icon-192.png'}),
+                subscription_info={'endpoint': sub.endpoint, 'keys': {'p256dh': sub.p256dh, 'auth': sub.auth}},
+                data=json.dumps({'title': title, 'body': body, 'url': url, 'icon': '/static/icon-192.png'}),
                 vapid_private_key=VAPID_PRIVATE_KEY,
                 vapid_claims=VAPID_CLAIMS,
             )
-        except WebPushException as e:
-            app.logger.error(f'[push] Failed for {user_id}: {e}')
-            # Remove dead subscriptions (410 Gone)
-            if e.response is not None and e.response.status_code in (404, 410):
+        except Exception as e:
+            app.logger.error(f'[push] {e}')
+            if hasattr(e, 'response') and e.response is not None and e.response.status_code in (404, 410):
                 db.session.delete(sub)
                 db.session.commit()
 
 
-def notify_shopping_updated(actor_id, action, item_name):
-    """Push to the other user when the shopping list changes."""
+def _notify_shopping_updated(actor_id, action, item_name):
     other = 'minke' if actor_id == 'jack' else 'jack'
-    actor_name = _name(actor_id)
-    if action == 'add':
-        body = f'{actor_name} added "{item_name}" to the shopping list'
-    else:
-        body = f'{actor_name} removed "{item_name}" from the shopping list'
-    send_push_to_user(other, '🛒 Shopping list updated', body, url='/meals')
+    actor = _name(actor_id)
+    body  = f'{actor} added "{item_name}" to the shopping list' if action == 'add' \
+            else f'{actor} removed "{item_name}" from the shopping list'
+    _send_push(other, '🛒 Shopping list updated', body, url='/meals')
 
-
-# ── Push API routes ───────────────────────────────────────────────────────────
 
 @app.route('/api/push/vapid-public-key')
 @login_required
@@ -1734,22 +1741,17 @@ def push_vapid_key():
 @app.route('/api/push/subscribe', methods=['POST'])
 @login_required
 def push_subscribe():
-    data = request.get_json(silent=True) or {}
+    data   = request.get_json(silent=True) or {}
     endpoint = data.get('endpoint', '').strip()
     p256dh   = data.get('keys', {}).get('p256dh', '').strip()
     auth     = data.get('keys', {}).get('auth', '').strip()
     if not endpoint or not p256dh or not auth:
         return jsonify(error='Invalid subscription'), 400
-    # Upsert — update keys if endpoint already exists
     sub = PushSubscription.query.filter_by(endpoint=endpoint).first()
     if sub:
-        sub.p256dh  = p256dh
-        sub.auth    = auth
-        sub.user_id = current_user.id
+        sub.p256dh = p256dh; sub.auth = auth; sub.user_id = current_user.id
     else:
-        db.session.add(PushSubscription(
-            user_id=current_user.id, endpoint=endpoint, p256dh=p256dh, auth=auth
-        ))
+        db.session.add(PushSubscription(user_id=current_user.id, endpoint=endpoint, p256dh=p256dh, auth=auth))
     db.session.commit()
     return jsonify(ok=True)
 
@@ -1767,8 +1769,7 @@ def push_unsubscribe():
 
 @app.route('/sw.js')
 def service_worker():
-    return send_from_directory(app.static_folder, 'sw.js',
-                               mimetype='application/javascript')
+    return send_from_directory(app.static_folder, 'sw.js', mimetype='application/javascript')
 
 
 # ── Init ─────────────────────────────────────────────────────────────────────
