@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jack & Minke — Today</title>
+<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+<link rel="manifest" href="/static/manifest.json">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<meta name="theme-color" content="#30B98A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="J&M">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F2F2F7;--bg2:#FFFFFF;--bg3:#F2F2F7;
+  --sep:rgba(60,60,67,0.12);--sep-strong:rgba(60,60,67,0.22);
+  --ink:#1C1C1E;--ink2:#3A3A3C;--ink3:#636366;--ink4:#AEAEB2;
+  --blue:#0A84FF;--blue-bg:#E8F2FF;--blue-t:#004FAD;
+  --pink:#FF375F;--pink-bg:#FFF0F3;--pink-t:#9B1030;
+  --teal:#30B98A;--teal-bg:#E6F8F2;--teal-t:#0E6648;
+  --amber:#FF9F0A;--amber-bg:#FFF5E6;--amber-t:#7A4400;
+  --green:#34C759;--green-bg:#E9FAF0;--green-t:#1A6B32;
+  --purple:#BF5AF2;--purple-bg:#F5EEFF;--purple-t:#6B1FA8;
+  --red:#FF3B30;--red-bg:#FFF0EF;--red-t:#9B0E08;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow:0 2px 8px rgba(0,0,0,0.08),0 1px 3px rgba(0,0,0,0.05);
+  --r:14px;--r-lg:20px;
+}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px;-webkit-font-smoothing:antialiased;}
+
+/* ── Nav ── */
+.nav{background:rgba(242,242,247,0.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--sep);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:200;}
+.nav-logo{font-size:17px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;text-decoration:none;letter-spacing:-0.3px;}
+.logo-pip{width:8px;height:8px;border-radius:50%;background:#30B98A;box-shadow:0 0 0 3px rgba(48,185,138,0.2);}
+.nav-pills{display:flex;gap:2px;list-style:none;background:rgba(120,120,128,0.12);border-radius:12px;padding:3px;}
+.nav-pills a{font-size:13px;font-weight:500;color:var(--ink3);text-decoration:none;padding:5px 14px;border-radius:9px;transition:all 0.2s;}
+.nav-pills a.active{background:var(--bg2);color:var(--ink);box-shadow:var(--shadow-sm);}
+.nav-pills a:hover:not(.active){color:var(--ink);}
+.nav-avs{display:flex;align-items:center;}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:2px solid var(--bg);box-shadow:var(--shadow-sm);}
+.av-j{background:var(--blue-bg);color:var(--blue-t);}
+.av-m{background:var(--pink-bg);color:var(--pink-t);}
+.nav-avs .av:not(:first-child){margin-left:-8px;}
+.nav-burger{display:none;width:38px;height:38px;border-radius:10px;border:none;background:rgba(120,120,128,0.12);cursor:pointer;align-items:center;justify-content:center;padding:0;color:var(--ink2);flex-shrink:0;}
+.nav-burger:hover{background:rgba(120,120,128,0.2);}
+.nav-burger svg{width:18px;height:18px;}
+
+/* ── Drawer ── */
+.drawer-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.38);z-index:400;opacity:0;transition:opacity 0.22s;}
+.drawer-bg.open{display:block;opacity:1;}
+.drawer{position:fixed;top:0;left:0;bottom:0;width:82%;max-width:300px;background:var(--bg2);z-index:401;transform:translateX(-100%);transition:transform 0.28s cubic-bezier(0.32,0.72,0,1);display:flex;flex-direction:column;box-shadow:4px 0 24px rgba(0,0,0,0.12);}
+.drawer.open{transform:translateX(0);}
+.drawer-head{padding:18px 20px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--sep);}
+.drawer-brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:600;color:var(--ink);letter-spacing:-0.3px;}
+.drawer-close{width:32px;height:32px;border-radius:50%;border:none;background:rgba(120,120,128,0.12);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink3);padding:0;}
+.drawer-close:hover{background:rgba(120,120,128,0.22);}
+.drawer-nav{padding:12px 10px;display:flex;flex-direction:column;gap:2px;}
+.drawer-nav a{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:11px;font-size:15px;font-weight:500;color:var(--ink2);text-decoration:none;transition:background 0.15s;}
+.drawer-nav a:hover{background:var(--bg3);}
+.drawer-nav a.active{background:var(--teal-bg);color:var(--teal-t);font-weight:600;}
+.drawer-nav a svg{width:19px;height:19px;flex-shrink:0;opacity:0.85;}
+.drawer-foot{margin-top:auto;padding:14px 20px 20px;border-top:1px solid var(--sep);}
+.drawer-user{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.drawer-user .av{width:34px;height:34px;font-size:13px;}
+.drawer-user .av:not(:first-child){margin-left:-6px;}
+.drawer-signout{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:11px;font-size:14px;font-weight:500;color:var(--ink3);text-decoration:none;background:rgba(120,120,128,0.1);}
+.drawer-signout:hover{background:rgba(120,120,128,0.18);color:var(--pink-t);}
+@media(max-width:700px){.nav-burger{display:flex;}.nav-pills{display:none;}.nav-avs a[href="/logout"]{display:none!important;}}
+
+/* ── Page layout ── */
+.page{max-width:680px;margin:0 auto;padding:28px 16px 80px;}
+
+/* ── Hero date ── */
+.hero{margin-bottom:28px;}
+.hero-date{font-size:13px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;}
+.hero-title{font-size:30px;font-weight:700;letter-spacing:-0.8px;color:var(--ink);line-height:1.1;}
+.hero-sub{font-size:14px;color:var(--ink3);margin-top:6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.progress-wrap{display:flex;align-items:center;gap:8px;margin-top:10px;}
+.progress-bar{flex:1;height:5px;background:var(--sep);border-radius:99px;overflow:hidden;max-width:200px;}
+.progress-fill{height:100%;background:var(--teal);border-radius:99px;transition:width 0.4s cubic-bezier(0.34,1.2,0.64,1);}
+.progress-label{font-size:12px;font-weight:600;color:var(--teal);}
+
+/* ── Quick add ── */
+.quick-add{background:var(--bg2);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);padding:4px 4px 4px 16px;display:flex;align-items:center;gap:8px;margin-bottom:20px;border:1.5px solid transparent;transition:border-color 0.15s;}
+.quick-add:focus-within{border-color:var(--teal);box-shadow:0 0 0 3px rgba(48,185,138,0.1);}
+.quick-add input{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;color:var(--ink);background:transparent;padding:10px 0;}
+.quick-add input::placeholder{color:var(--ink4);}
+.qa-priority{border:none;background:rgba(120,120,128,0.1);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--ink3);cursor:pointer;font-family:inherit;transition:all 0.15s;white-space:nowrap;}
+.qa-priority:hover{background:rgba(120,120,128,0.18);}
+.qa-pin{border:none;background:rgba(120,120,128,0.1);border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all 0.15s;}
+.qa-pin:hover,.qa-pin.active{background:var(--amber-bg);color:var(--amber-t);}
+.qa-submit{border:none;background:var(--teal);color:#fff;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all 0.15s;}
+.qa-submit:hover{opacity:0.88;}
+
+/* ── Todo list ── */
+.todo-section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink4);margin:20px 0 8px;padding:0 2px;}
+.todo-list{display:flex;flex-direction:column;gap:6px;}
+.todo-item{background:var(--bg2);border-radius:14px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:0;overflow:hidden;transition:opacity 0.2s,transform 0.2s;border-left:3px solid transparent;}
+.todo-item.priority-high{border-left-color:var(--red);}
+.todo-item.priority-normal{border-left-color:var(--blue);}
+.todo-item.priority-low{border-left-color:var(--sep-strong);}
+.todo-item.done-item{opacity:0.52;}
+.todo-check{width:52px;height:52px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;border:none;background:none;padding:0;}
+.check-circle{width:24px;height:24px;border-radius:50%;border:2px solid var(--sep-strong);display:flex;align-items:center;justify-content:center;transition:all 0.2s;background:#fff;}
+.todo-item.done-item .check-circle{background:var(--green);border-color:var(--green);}
+.todo-item.done-item .check-circle::after{content:'';display:block;width:10px;height:6px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px);}
+.todo-text-wrap{flex:1;min-width:0;padding:14px 0;}
+.todo-text{font-size:15px;font-weight:500;color:var(--ink);line-height:1.35;}
+.todo-item.done-item .todo-text{text-decoration:line-through;color:var(--ink4);}
+.todo-meta{display:flex;align-items:center;gap:6px;margin-top:3px;}
+.priority-badge{font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;letter-spacing:0.03em;}
+.priority-badge.high{background:var(--red-bg);color:var(--red-t);}
+.priority-badge.normal{background:var(--blue-bg);color:var(--blue-t);}
+.priority-badge.low{background:var(--bg3);color:var(--ink4);}
+.pin-badge{font-size:10px;color:var(--amber-t);background:var(--amber-bg);padding:1px 7px;border-radius:99px;font-weight:600;}
+.todo-actions{display:flex;align-items:center;gap:0;padding-right:8px;flex-shrink:0;}
+.todo-btn{width:34px;height:34px;border:none;background:none;cursor:pointer;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--ink4);transition:all 0.15s;}
+.todo-btn:hover{background:var(--bg3);color:var(--ink2);}
+.todo-btn.pin-on{color:var(--amber);}
+.todo-btn.del:hover{background:var(--red-bg);color:var(--red-t);}
+
+/* ── Context cards ── */
+.ctx-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px;}
+.ctx-card{background:var(--bg2);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);overflow:hidden;}
+.ctx-head{padding:12px 16px 10px;border-bottom:1px solid var(--sep);display:flex;align-items:center;justify-content:space-between;}
+.ctx-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink4);}
+.ctx-link{font-size:11px;color:var(--teal);text-decoration:none;font-weight:600;}
+.ctx-link:hover{text-decoration:underline;}
+.ctx-row{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:13px;border-top:1px solid var(--sep);}
+.ctx-row:first-child{border-top:none;}
+.ctx-icon{font-size:16px;flex-shrink:0;width:24px;text-align:center;}
+.ctx-name{flex:1;font-weight:500;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ctx-sub{font-size:11px;color:var(--ink4);}
+.ctx-empty{font-size:13px;color:var(--ink4);text-align:center;padding:16px;}
+.meal-type-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ── Overdue suggestions ── */
+.suggestion-item{background:var(--amber-bg);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;transition:background 0.12s;border:none;width:100%;text-align:left;font-family:inherit;}
+.suggestion-item:hover{background:#FFE9C5;}
+.suggestion-item .si-name{flex:1;font-weight:500;color:var(--ink);}
+.suggestion-item .si-meta{font-size:11px;color:var(--amber-t);}
+
+/* ── Empty state ── */
+.empty-day{text-align:center;padding:36px 20px;color:var(--ink4);}
+.empty-day .em-icon{font-size:40px;margin-bottom:12px;display:block;}
+.empty-day p{font-size:14px;line-height:1.5;}
+
+/* ── Responsive ── */
+@media(max-width:600px){
+  .page{padding:16px 10px 80px;}
+  .hero-title{font-size:24px;}
+  .ctx-grid{grid-template-columns:1fr;}
+  .nav{padding:0 10px;height:52px;gap:10px;justify-content:flex-start;}
+  .nav-logo{font-size:15px;flex:1;}
+  .todo-text{font-size:14px;}
+}
+
+.drawer-section{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink4);padding:10px 14px 4px;margin-top:4px;}
+.drawer-section:first-child{margin-top:0;}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <button class="nav-burger" type="button" onclick="openDrawer()" aria-label="Open menu"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 5h12M3 9h12M3 13h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+  <a class="nav-logo" href="/"><span class="logo-pip"></span>Jack & Minke</a>
+    <ul class="nav-pills">
+    <li><a href="/">Dashboard</a></li>
+    <li><a href="/today" class="active">Today</a></li>
+    <li><a href="/meals">Meals</a></li>
+    <li><a href="/calendar">Calendar</a></li>
+    <li style="width:1px;background:var(--sep);margin:4px 2px;border-radius:1px;self-align:stretch;"></li>
+    <li><a href="/workouts">Workouts 🚧</a></li>
+    <li><a href="/finance">Finance 🚧</a></li>
+  </ul>
+  <div class="nav-avs">
+    <div class="av av-j" style="{{ 'opacity:1' if current_user.id == 'jack' else 'opacity:0.35' }}">J</div>
+    <div class="av av-m" style="{{ 'opacity:1' if current_user.id == 'minke' else 'opacity:0.35' }}">M</div>
+    <a href="/logout" style="font-size:12px;font-weight:500;color:var(--ink3);text-decoration:none;margin-left:10px;padding:5px 12px;border-radius:99px;background:rgba(120,120,128,0.12);transition:all 0.15s;" onmouseover="this.style.background='rgba(120,120,128,0.22)'" onmouseout="this.style.background='rgba(120,120,128,0.12)'">Sign out</a>
+  </div>
+</nav>
+
+<!-- ═══ MOBILE DRAWER ═══ -->
+<div class="drawer-bg" id="drawer-bg" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-head">
+    <div class="drawer-brand"><span class="logo-pip"></span>Jack &amp; Minke</div>
+    <button class="drawer-close" type="button" onclick="closeDrawer()" aria-label="Close menu">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+    <nav class="drawer-nav">
+    <div class="drawer-section">Working</div>
+    <a href="/">
+      <svg viewBox="0 0 20 20" fill="none"><path d="M3 10l7-6 7 6v7a1 1 0 0 1-1 1h-4v-5H8v5H4a1 1 0 0 1-1-1v-7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      Dashboard
+    </a>
+    <a href="/today" class="active">
+      <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M10 6v4l2.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Today
+    </a>
+    <a href="/meals">
+      <svg viewBox="0 0 20 20" fill="none"><path d="M4 3v7a2 2 0 0 0 2 2v5M6 3v5M8 3v5M14 3c-1.5 2-1.5 5 0 7v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Meals
+    </a>
+    <a href="/calendar">
+      <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Calendar
+    </a>
+    <div class="drawer-section">In Progress</div>
+    <a href="/workouts">
+      <svg viewBox="0 0 20 20" fill="none"><path d="M5 7v6M3 8v4M15 7v6M17 8v4M7 10h6M5.5 10h1M13.5 10h1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Workouts 🚧
+    </a>
+    <a href="/finance">
+      <svg viewBox="0 0 20 20" fill="none"><path d="M10 3v14M13.5 6.5c0-1.4-1.6-2-3.5-2s-3.5.8-3.5 2.2c0 3 7 1.8 7 4.8 0 1.4-1.6 2.2-3.5 2.2s-3.5-.6-3.5-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Finance 🚧
+    </a>
+  </nav>
+  <div class="drawer-foot">
+    <div class="drawer-user">
+      <div class="av av-j" style="{{ 'opacity:1' if current_user.id == 'jack' else 'opacity:0.35' }}">J</div>
+      <div class="av av-m" style="{{ 'opacity:1' if current_user.id == 'minke' else 'opacity:0.35' }}">M</div>
+      <span style="font-size:13px;color:var(--ink3);margin-left:6px;">Signed in as <strong style="color:var(--ink);">{{ current_user.id|capitalize }}</strong></span>
+    </div>
+    <a href="/logout" class="drawer-signout">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h2M9 5l3 3-3 3M12 8H7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Sign out
+    </a>
+  </div>
+</aside>
+
+<main class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-date">{{ today_day }}</div>
+    <div class="hero-title">{{ today_label }}</div>
+    <div class="hero-sub">
+      <span>{{ current_user.name }}'s day</span>
+      {% if total_count > 0 %}
+      <span>·</span>
+      <span>{{ done_count }}/{{ total_count }} done</span>
+      {% endif %}
+    </div>
+    {% if total_count > 0 %}
+    <div class="progress-wrap">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:{{ ((done_count / total_count) * 100)|int }}%"></div>
+      </div>
+      <span class="progress-label">{{ ((done_count / total_count) * 100)|int }}%</span>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Quick add -->
+  <form class="quick-add" method="POST" action="/today/add" id="quick-form">
+    <input type="text" name="text" id="quick-input" placeholder="Add a task for today…" autocomplete="off" required>
+    <input type="hidden" name="priority" id="qa-priority-val" value="normal">
+    <input type="hidden" name="pinned" id="qa-pin-val" value="">
+    <button type="button" class="qa-priority" id="qa-priority-btn" onclick="cyclePriority()">● Normal</button>
+    <button type="button" class="qa-pin" id="qa-pin-btn" onclick="togglePin()" title="Carry to tomorrow">📌</button>
+    <button type="submit" class="qa-submit">Add</button>
+  </form>
+
+  <!-- Overdue task suggestions -->
+  {% if overdue_tasks %}
+  <div class="todo-section-label">⚠ Overdue — add to today?</div>
+  <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:4px;">
+    {% for t in overdue_tasks %}
+    <button type="button" class="suggestion-item" onclick="addSuggestion('{{ t.name|e }}')">
+      <span style="font-size:16px;">⏰</span>
+      <span class="si-name">{{ t.name }}</span>
+      <span class="si-meta">{{ t.project.name }} · {{ t.due_label }}</span>
+    </button>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Todo list -->
+  {% set open_todos  = todos | selectattr('done', 'equalto', False) | list %}
+  {% set done_todos  = todos | selectattr('done', 'equalto', True)  | list %}
+
+  {% if not todos %}
+  <div class="empty-day">
+    <span class="em-icon">☀️</span>
+    <p>Nothing planned yet.<br>Add your first task above to get started.</p>
+  </div>
+  {% else %}
+
+    {% if open_todos %}
+    <div class="todo-section-label">To do</div>
+    <div class="todo-list" id="todo-open">
+      {% for t in open_todos %}
+      <div class="todo-item priority-{{ t.priority }}" id="item-{{ t.id }}">
+        <button class="todo-check" onclick="toggleTodo({{ t.id }})" aria-label="Mark done">
+          <div class="check-circle"></div>
+        </button>
+        <div class="todo-text-wrap">
+          <div class="todo-text">{{ t.text }}</div>
+          <div class="todo-meta">
+            {% if t.priority != 'normal' %}
+            <span class="priority-badge {{ t.priority }}">{{ t.priority|upper }}</span>
+            {% endif %}
+            {% if t.pinned %}
+            <span class="pin-badge">📌 carries over</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="todo-actions">
+          <button class="todo-btn {% if t.pinned %}pin-on{% endif %}" onclick="togglePin({{ t.id }})" title="Carry to tomorrow">📌</button>
+          <button class="todo-btn" onclick="cyclePriorityItem({{ t.id }})" title="Change priority">
+            {% if t.priority == 'high' %}🔴
+            {% elif t.priority == 'low' %}🔵
+            {% else %}⚪{% endif %}
+          </button>
+          <button class="todo-btn del" onclick="deleteTodo({{ t.id }})" title="Delete">✕</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if done_todos %}
+    <div class="todo-section-label">Done ✓</div>
+    <div class="todo-list">
+      {% for t in done_todos %}
+      <div class="todo-item priority-{{ t.priority }} done-item" id="item-{{ t.id }}">
+        <button class="todo-check" onclick="toggleTodo({{ t.id }})" aria-label="Unmark">
+          <div class="check-circle"></div>
+        </button>
+        <div class="todo-text-wrap">
+          <div class="todo-text">{{ t.text }}</div>
+        </div>
+        <div class="todo-actions">
+          <button class="todo-btn del" onclick="deleteTodo({{ t.id }})" title="Delete">✕</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  {% endif %}
+
+  <!-- Context: meals + calendar -->
+  {% if meals_today or cal_today %}
+  <div class="ctx-grid">
+
+    {% if meals_today %}
+    <div class="ctx-card">
+      <div class="ctx-head">
+        <span class="ctx-title">🍽 Today's meals</span>
+        <a href="/meals" class="ctx-link">Planner →</a>
+      </div>
+      {% set MEAL_COLORS = {'breakfast': '#FF9F0A', 'lunch': '#0A84FF', 'dinner': '#30B98A', 'snack': '#BF5AF2'} %}
+      {% set MEAL_ICONS  = {'breakfast': '🌅', 'lunch': '☀️', 'dinner': '🌙', 'snack': '🍎'} %}
+      {% for m in meals_today %}
+      <div class="ctx-row">
+        <div class="meal-type-dot" style="background:{{ MEAL_COLORS.get(m.meal_type, '#8E8E93') }}"></div>
+        <span class="ctx-icon">{{ MEAL_ICONS.get(m.meal_type, '🍽') }}</span>
+        <span class="ctx-name">{{ m.display_name }}</span>
+        <span class="ctx-sub">{{ m.meal_type|capitalize }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if cal_today %}
+    <div class="ctx-card">
+      <div class="ctx-head">
+        <span class="ctx-title">📅 Today's events</span>
+        <a href="/calendar" class="ctx-link">Calendar →</a>
+      </div>
+      {% set CAT_ICONS = {'holiday':'🏖','birthday':'🎂','reminder':'🔔','anniversary':'💜','event':'📅'} %}
+      {% for ev in cal_today %}
+      <div class="ctx-row">
+        <span class="ctx-icon">{{ CAT_ICONS.get(ev.event_category or 'event', '📅') }}</span>
+        <div style="flex:1;min-width:0;">
+          <div class="ctx-name">{{ ev.name }}</div>
+          {% if ev.start_time %}<div class="ctx-sub">{{ ev.start_time }}{% if ev.end_time %}–{{ ev.end_time }}{% endif %}</div>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </div>
+  {% endif %}
+
+</main>
+
+<script>
+// ── Priority cycle ──
+const PRIORITY_STATES = [
+  { val:'normal', label:'● Normal', cls:'' },
+  { val:'high',   label:'🔴 High',  cls:'' },
+  { val:'low',    label:'🔵 Low',   cls:'' },
+];
+let prioIdx = 0;
+
+function cyclePriority() {
+  prioIdx = (prioIdx + 1) % PRIORITY_STATES.length;
+  const s = PRIORITY_STATES[prioIdx];
+  document.getElementById('qa-priority-btn').textContent = s.label;
+  document.getElementById('qa-priority-val').value = s.val;
+}
+
+// ── Pin toggle (add form) ──
+let pinActive = false;
+function togglePin() {
+  pinActive = !pinActive;
+  const btn = document.getElementById('qa-pin-btn');
+  btn.classList.toggle('active', pinActive);
+  document.getElementById('qa-pin-val').value = pinActive ? 'on' : '';
+}
+
+// ── Todo item actions ──
+async function toggleTodo(id) {
+  const item = document.getElementById('item-' + id);
+  const res  = await fetch('/today/' + id + '/toggle', { method: 'POST' });
+  const data = await res.json();
+  if (data.ok) {
+    // Reload for simplicity — keeps progress bar accurate
+    location.reload();
+  }
+}
+
+async function deleteTodo(id) {
+  const res = await fetch('/today/' + id + '/delete', { method: 'POST' });
+  if ((await res.json()).ok) {
+    const el = document.getElementById('item-' + id);
+    el.style.transform = 'translateX(40px)';
+    el.style.opacity   = '0';
+    setTimeout(() => { el.remove(); }, 200);
+  }
+}
+
+async function togglePin(id) {
+  const res  = await fetch('/today/' + id + '/pin', { method: 'POST' });
+  const data = await res.json();
+  if (data.ok) {
+    const btn = document.querySelector('#item-' + id + ' .todo-btn.pin-on, #item-' + id + ' .todo-btn[onclick*="togglePin"]');
+    location.reload();
+  }
+}
+
+async function cyclePriorityItem(id) {
+  await fetch('/today/' + id + '/priority', { method: 'POST' });
+  location.reload();
+}
+
+// ── Suggestion: fill quick-add with overdue task name ──
+function addSuggestion(name) {
+  const input = document.getElementById('quick-input');
+  input.value = name;
+  input.focus();
+}
+
+// ── Drawer ──
+function openDrawer(){
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer-bg').classList.add('open');
+  document.getElementById('drawer').removeAttribute('aria-hidden');
+  document.body.style.overflow='hidden';
+}
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-bg').classList.remove('open');
+  document.getElementById('drawer').setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeDrawer(); });
+
+// ── Auto-logout after 30 minutes of inactivity ──
+(function(){
+  const TIMEOUT_MS = 30*60*1000, WARN_MS = 60*1000;
+  let logoutTimer, warnTimer, banner;
+  function resetTimers(){
+    clearTimeout(logoutTimer); clearTimeout(warnTimer);
+    if(banner){banner.remove();banner=null;}
+    warnTimer   = setTimeout(showWarning, TIMEOUT_MS - WARN_MS);
+    logoutTimer = setTimeout(()=>{window.location.href='/logout';}, TIMEOUT_MS);
+  }
+  function showWarning(){
+    if(banner) return;
+    banner = document.createElement('div');
+    banner.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1C1C1E;color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:500;z-index:9999;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap;';
+    banner.innerHTML='⏱ You\'ll be signed out in 1 minute. <button onclick="resetTimers()" style="background:var(--teal,#30B98A);border:none;color:#fff;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Stay signed in</button>';
+    document.body.appendChild(banner);
+  }
+  ['mousemove','keydown','click','scroll','touchstart'].forEach(ev=>{document.addEventListener(ev,resetTimers,{passive:true});});
+  resetTimers();
+})();
+</script>
+</body>
+</html>

@@ -577,6 +577,21 @@ class ShoppingItem(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
+class DailyTodo(db.Model):
+    """A lightweight personal to-do for today. Per-user, per-day scratch pad.
+    Items from previous days are automatically archived (kept but hidden)."""
+    id         = db.Column(db.Integer, primary_key=True)
+    user_id    = db.Column(db.String(10), nullable=False)   # jack / minke
+    text       = db.Column(db.String(400), nullable=False)
+    done       = db.Column(db.Boolean, default=False)
+    pinned     = db.Column(db.Boolean, default=False)       # carry forward to tomorrow
+    priority   = db.Column(db.String(10), default='normal') # high / normal / low
+    for_date   = db.Column(db.Date, nullable=False, default=date.today)
+    done_at    = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    order      = db.Column(db.Integer, default=0)
+
+
 class PushSubscription(db.Model):
     """Stores a Web Push subscription for a user (one per browser/device)."""
     id         = db.Column(db.Integer, primary_key=True)
@@ -1782,6 +1797,145 @@ def shopping_complete():
     return jsonify(ok=True)
 
 
+# ── Today / Daily todo ───────────────────────────────────────────────────────
+
+@app.route('/today')
+@login_required
+def today_page():
+    today = date.today()
+
+    # Carry-forward: any pinned incomplete items from previous days get a new
+    # entry for today if they don't already have one.
+    pinned_old = DailyTodo.query.filter(
+        DailyTodo.user_id == current_user.id,
+        DailyTodo.pinned  == True,
+        DailyTodo.done    == False,
+        DailyTodo.for_date < today,
+    ).all()
+    existing_texts = {t.text for t in DailyTodo.query.filter_by(
+        user_id=current_user.id, for_date=today).all()}
+    for old in pinned_old:
+        if old.text not in existing_texts:
+            db.session.add(DailyTodo(
+                user_id  = current_user.id,
+                text     = old.text,
+                priority = old.priority,
+                pinned   = True,
+                for_date = today,
+                order    = old.order,
+            ))
+        old.pinned = False  # unpin the old one so it doesn't duplicate again
+    db.session.commit()
+
+    # Today's items, sorted: high priority first, then by order
+    PRIORITY_ORDER = {'high': 0, 'normal': 1, 'low': 2}
+    todos = DailyTodo.query.filter_by(
+        user_id=current_user.id, for_date=today
+    ).order_by(DailyTodo.done, DailyTodo.order).all()
+    todos.sort(key=lambda t: (t.done, PRIORITY_ORDER.get(t.priority, 1), t.order))
+
+    # Overdue open project tasks (due today or earlier) — surfaced as suggestions
+    overdue_tasks = Task.query.filter(
+        Task.assignee.in_([current_user.id, 'both']),
+        Task.done     == False,
+        Task.due_date != None,
+        Task.due_date <= today,
+    ).order_by(Task.due_date).limit(5).all()
+
+    # Today's meals
+    meals_today = MealPlan.query.filter_by(for_date=today).all() \
+        if False else []  # placeholder — use plan_date
+    meals_today = MealPlan.query.filter_by(plan_date=today).all()
+    MEAL_ORDER  = {'breakfast':0,'lunch':1,'dinner':2,'snack':3}
+    meals_today = sorted(meals_today, key=lambda m: MEAL_ORDER.get(m.meal_type, 9))
+
+    # Today's calendar events
+    cal_today = CalEvent.query.filter_by(event_date=today).all()
+
+    done_count  = sum(1 for t in todos if t.done)
+    total_count = len(todos)
+
+    return render_template('today.html',
+        todos        = todos,
+        today        = today,
+        today_day    = today.strftime('%A'),
+        today_label  = str(today.day) + today.strftime(' %B'),
+        done_count   = done_count,
+        total_count  = total_count,
+        overdue_tasks = overdue_tasks,
+        meals_today  = meals_today,
+        cal_today    = cal_today,
+        current_user = current_user,
+    )
+
+
+@app.route('/today/add', methods=['POST'])
+@login_required
+def today_add():
+    text = request.form.get('text', '').strip()
+    if text:
+        # Get the current max order for today
+        max_order = db.session.query(db.func.max(DailyTodo.order)).filter_by(
+            user_id=current_user.id, for_date=date.today()).scalar() or 0
+        db.session.add(DailyTodo(
+            user_id  = current_user.id,
+            text     = text,
+            priority = request.form.get('priority', 'normal'),
+            pinned   = request.form.get('pinned') == 'on',
+            for_date = date.today(),
+            order    = max_order + 1,
+        ))
+        db.session.commit()
+    return redirect('/today')
+
+
+@app.route('/today/<int:tid>/toggle', methods=['POST'])
+@login_required
+def today_toggle(tid):
+    t = DailyTodo.query.get_or_404(tid)
+    if t.user_id != current_user.id:
+        return jsonify(error='Forbidden'), 403
+    t.done   = not t.done
+    t.done_at = datetime.utcnow() if t.done else None
+    db.session.commit()
+    return jsonify(ok=True, done=t.done)
+
+
+@app.route('/today/<int:tid>/delete', methods=['POST'])
+@login_required
+def today_delete(tid):
+    t = DailyTodo.query.get_or_404(tid)
+    if t.user_id != current_user.id:
+        return jsonify(error='Forbidden'), 403
+    db.session.delete(t)
+    db.session.commit()
+    return jsonify(ok=True)
+
+
+@app.route('/today/<int:tid>/pin', methods=['POST'])
+@login_required
+def today_pin(tid):
+    t = DailyTodo.query.get_or_404(tid)
+    if t.user_id != current_user.id:
+        return jsonify(error='Forbidden'), 403
+    t.pinned = not t.pinned
+    db.session.commit()
+    return jsonify(ok=True, pinned=t.pinned)
+
+
+@app.route('/today/<int:tid>/priority', methods=['POST'])
+@login_required
+def today_priority(tid):
+    t = DailyTodo.query.get_or_404(tid)
+    if t.user_id != current_user.id:
+        return jsonify(error='Forbidden'), 403
+    priorities = ['high', 'normal', 'low']
+    current_idx = priorities.index(t.priority) if t.priority in priorities else 1
+    t.priority = priorities[(current_idx + 1) % 3]
+    db.session.commit()
+    return jsonify(ok=True, priority=t.priority)
+
+
 # ── Push notification helpers ─────────────────────────────────────────────────
 
 def _send_push(user_id, title, body, url='/meals'):
@@ -1849,6 +2003,99 @@ def push_unsubscribe():
 @app.route('/sw.js')
 def service_worker():
     return send_from_directory(app.static_folder, 'sw.js', mimetype='application/javascript')
+
+
+# ── Widget API ────────────────────────────────────────────────────────────────
+
+@app.route('/api/widget')
+def api_widget():
+    """Lightweight JSON endpoint for the KWGT Android home screen widget.
+    Authenticated via ?token=WIDGET_TOKEN query param (set in env vars),
+    or falls back to session login for browser testing.
+    """
+    token        = request.args.get('token', '')
+    widget_token = os.environ.get('WIDGET_TOKEN', '')
+    if not (widget_token and token == widget_token):
+        if not current_user.is_authenticated:
+            return jsonify(error='Unauthorised — pass ?token=YOUR_WIDGET_TOKEN'), 401
+    today   = date.today()
+    cutoff  = today + timedelta(days=6)
+
+    # ── Today's meals ──
+    meals_today = MealPlan.query.filter_by(plan_date=today).order_by(MealPlan.meal_type).all()
+    MEAL_ORDER = {'breakfast': 0, 'lunch': 1, 'dinner': 2, 'snack': 3}
+    meals_sorted = sorted(meals_today, key=lambda m: MEAL_ORDER.get(m.meal_type, 9))
+    meals_out = [
+        {
+            'type':   m.meal_type,
+            'name':   m.display_name,
+            'cooked': m.cooked,
+        }
+        for m in meals_sorted
+    ]
+
+    # ── Calendar events next 7 days (personal events + task deadlines) ──
+    cal_events = CalEvent.query.filter(
+        CalEvent.event_date >= today,
+        CalEvent.event_date <= cutoff,
+    ).order_by(CalEvent.event_date).all()
+
+    task_deadlines = Task.query.filter(
+        Task.done     == False,
+        Task.due_date != None,
+        Task.due_date >= today,
+        Task.due_date <= cutoff,
+    ).order_by(Task.due_date).all()
+
+    # Merge and sort by date
+    events_out = []
+    for ev in cal_events:
+        CAT_EMOJI = {
+            'holiday': '🏖', 'birthday': '🎂', 'reminder': '🔔',
+            'anniversary': '💜', 'event': '📅',
+        }
+        emoji = CAT_EMOJI.get(ev.event_category or 'event', '📅')
+        events_out.append({
+            'date':       ev.event_date.isoformat(),
+            'day':        ev.event_date.strftime('%a ') + str(ev.event_date.day),
+            'name':       ev.name,
+            'emoji':      emoji,
+            'category':   ev.event_category or 'event',
+            'who':        ev.assignee or 'both',
+            'start_time': ev.start_time or '',
+            'status':     ev.status or 'confirmed',
+            'type':       'event',
+        })
+
+    for t in task_deadlines:
+        events_out.append({
+            'date':       t.due_date.isoformat(),
+            'day':        t.due_date.strftime('%a ') + str(t.due_date.day),
+            'name':       t.name,
+            'emoji':      '⏰',
+            'category':   'task',
+            'who':        t.assignee or 'both',
+            'start_time': '',
+            'status':     'confirmed',
+            'type':       'task',
+            'project':    t.project.name,
+        })
+
+    events_out.sort(key=lambda e: e['date'])
+
+    # ── Counts ──
+    open_tasks      = Task.query.filter_by(done=False).count()
+    shopping_count  = ShoppingItem.query.filter_by(bought=False).count()
+
+    return jsonify(
+        today       = today.isoformat(),
+        day_name    = today.strftime('%A'),
+        date_label  = str(today.day) + today.strftime(' %B'),
+        meals       = meals_out,
+        events      = events_out,
+        open_tasks  = open_tasks,
+        shopping    = shopping_count,
+    )
 
 
 # ── Init ─────────────────────────────────────────────────────────────────────

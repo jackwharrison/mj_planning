@@ -1,5 +1,5 @@
 """
-Migration: adds new columns to recipe and cal_event tables.
+Migration: adds new columns and tables.
 Run once with: python migrate.py
 """
 import sqlite3, os
@@ -11,7 +11,8 @@ print(f'Migrating: {db_path}')
 conn = sqlite3.connect(db_path)
 cur  = conn.cursor()
 
-migrations = {
+# New columns on existing tables
+col_migrations = {
     'recipe': [
         ('star_rating', 'INTEGER DEFAULT 0'),
         ('kcal',        'INTEGER'),
@@ -31,7 +32,7 @@ migrations = {
     ],
 }
 
-for table, cols in migrations.items():
+for table, cols in col_migrations.items():
     cur.execute(f'PRAGMA table_info({table})')
     existing = {row[1] for row in cur.fetchall()}
     for col, typedef in cols:
@@ -40,6 +41,23 @@ for table, cols in migrations.items():
             print(f'  + {table}.{col}')
         else:
             print(f'  . {table}.{col} (exists)')
+
+# New daily_todo table (db.create_all handles this, but just in case)
+cur.execute('''
+    CREATE TABLE IF NOT EXISTS daily_todo (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id    TEXT    NOT NULL,
+        text       TEXT    NOT NULL,
+        done       INTEGER DEFAULT 0,
+        pinned     INTEGER DEFAULT 0,
+        priority   TEXT    DEFAULT "normal",
+        for_date   DATE    NOT NULL,
+        done_at    DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        "order"    INTEGER DEFAULT 0
+    )
+''')
+print('  . daily_todo table ready')
 
 conn.commit()
 conn.close()
