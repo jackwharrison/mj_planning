@@ -80,6 +80,8 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
 .cal-controls{display:flex;align-items:center;gap:6px;}
 .today-btn{font-size:12px;font-weight:600;color:var(--blue);padding:5px 12px;border-radius:99px;border:none;cursor:pointer;background:var(--blue-bg);font-family:inherit;transition:all 0.15s;}
 .today-btn:hover{background:#D4E9FF;}
+.btn-new-event{font-size:12px;font-weight:600;color:#fff;padding:5px 14px;border-radius:99px;border:none;cursor:pointer;background:var(--teal);font-family:inherit;transition:all 0.15s;}
+.btn-new-event:hover{opacity:0.88;}
 .nav-arrow{width:30px;height:30px;border-radius:50%;border:none;cursor:pointer;background:rgba(120,120,128,0.1);color:var(--ink2);display:flex;align-items:center;justify-content:center;transition:all 0.15s;text-decoration:none;}
 .nav-arrow:hover{background:rgba(120,120,128,0.2);}
 
@@ -288,6 +290,7 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
     <div class="cal-header">
       <div class="cal-month-title">{{ month_name }} {{ year }}</div>
       <div class="cal-controls">
+        <button class="btn-new-event" onclick="openAddModal()">+ Event</button>
         <button class="today-btn" onclick="goToday()">Today</button>
         <a class="nav-arrow" href="/calendar?month={{ prev_month }}&year={{ prev_year }}">
           <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1L1 6.5L6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -353,7 +356,7 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
 
     <!-- Upcoming deadlines -->
     <div class="card">
-      <div class="card-head"><div class="card-title">Coming up</div></div>
+      <div class="card-head"><div class="card-title">This week</div></div>
       {% if upcoming %}
         {% for item in upcoming %}
         <div class="up-row">
@@ -368,7 +371,12 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
                 <span class="pill pill-{{ item.color }}">{{ item.project }}</span>
                 <span class="pill pill-gray">{{ item.who }}</span>
               {% else %}
-                <span class="pill pill-purple">Event</span>
+                {% set cat = item.event_category or 'event' %}
+                {% if cat == 'holiday' %}<span class="pill pill-teal">🏖 Holiday</span>
+                {% elif cat == 'birthday' %}<span class="pill pill-pink">🎂 Birthday</span>
+                {% elif cat == 'reminder' %}<span class="pill pill-amber">🔔 Reminder</span>
+                {% elif cat == 'anniversary' %}<span class="pill pill-purple">💜 Anniversary</span>
+                {% else %}<span class="pill pill-blue">📅 Event</span>{% endif %}
                 <span class="pill pill-gray">{{ item.who }}</span>
               {% endif %}
             </div>
@@ -376,7 +384,7 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
         </div>
         {% endfor %}
       {% else %}
-        <div class="dp-empty">Nothing due in the next 30 days</div>
+        <div class="dp-empty">Nothing on this week</div>
       {% endif %}
     </div>
 
@@ -384,7 +392,11 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
     <div class="card">
       <div class="legend-body">
         <div class="leg-row"><div class="leg-pip" style="background:#FF9F0A"></div><div class="leg-label">Task deadline</div></div>
-        <div class="leg-row"><div class="leg-pip" style="background:#BF5AF2"></div><div class="leg-label">Personal event</div></div>
+        <div class="leg-row"><div class="leg-pip" style="background:#0A84FF"></div><div class="leg-label">📅 Event</div></div>
+        <div class="leg-row"><div class="leg-pip" style="background:#34C759"></div><div class="leg-label">🏖 Holiday</div></div>
+        <div class="leg-row"><div class="leg-pip" style="background:#FF375F"></div><div class="leg-label">🎂 Birthday</div></div>
+        <div class="leg-row"><div class="leg-pip" style="background:#FF9F0A"></div><div class="leg-label">🔔 Reminder</div></div>
+        <div class="leg-row"><div class="leg-pip" style="background:#BF5AF2"></div><div class="leg-label">💜 Anniversary</div></div>
         {% for p in projects %}
         <div class="leg-row">
           <div class="leg-pip" style="background:{{ hex.get(p.color,'#0A84FF') }}"></div>
@@ -394,60 +406,75 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
       </div>
     </div>
 
-    <!-- Add event -->
-    <div class="card">
-      <div class="add-toggle-row" onclick="toggleAdd()">
-        <span style="font-size:14px;font-weight:600;color:var(--ink);">Add event</span>
-        <span class="add-icon" id="add-icon">+</span>
-      </div>
-      <div class="add-form" id="add-form">
-        <form method="POST" action="/events/new">
-          <div class="ff"><label>Event name</label><input type="text" name="name" required placeholder="e.g. Exchange contracts"></div>
-          <div class="ff-row">
-            <div class="ff"><label>Start date</label><input type="date" name="event_date" id="add-date" value="{{ today.strftime('%Y-%m-%d') }}"></div>
-            <div class="ff"><label>End date <span style="font-weight:400;color:var(--ink4);">(opt)</span></label><input type="date" name="end_date"></div>
-          </div>
-          <div class="ff-row">
-            <div class="ff"><label>Start time <span style="font-weight:400;color:var(--ink4);">(opt)</span></label><input type="time" name="start_time"></div>
-            <div class="ff"><label>End time <span style="font-weight:400;color:var(--ink4);">(opt)</span></label><input type="time" name="end_time"></div>
-          </div>
-          <div class="ff-row">
-            <div class="ff"><label>Who</label>
-              <select name="assignee">
-                <option value="both">Both</option>
-                <option value="jack">Jack</option>
-                <option value="minke">Minke</option>
-              </select>
-            </div>
-            <div class="ff"><label>Status</label>
-              <select name="status">
-                <option value="confirmed">✅ Confirmed</option>
-                <option value="tentative">❓ Tentative</option>
-              </select>
-            </div>
-          </div>
-          <div class="ff"><label>Notes <span style="font-weight:400;color:var(--ink4);">(opt)</span></label><textarea name="notes" placeholder="Any extra details…"></textarea></div>
-          <div class="ff"><label>Link to project <span style="font-weight:400;color:var(--ink4);">(opt)</span></label>
-            <select name="project_id">
-              <option value="">— None —</option>
-              {% for p in projects %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
-            </select>
-          </div>
-          <div class="ff"><label>Link to task <span style="font-weight:400;color:var(--ink4);">(opt)</span></label>
-            <select name="task_id">
-              <option value="">— None —</option>
-              {% for t in all_tasks %}<option value="{{ t.id }}">{{ t.name }} ({{ t.project.name }})</option>{% endfor %}
-            </select>
-          </div>
-          <button type="submit" class="btn-add">Add event</button>
-        </form>
-      </div>
-    </div>
-
   </div>
 </div>
 
-{# Pass event data to JS as JSON for the sidebar detail panel #}
+{# Pass event data and tasks-by-project to JS #}
+
+<!-- ═══ ADD EVENT MODAL ═══ -->
+<div class="modal-bg" id="add-modal" onclick="if(event.target===this)closeAdd()">
+  <div class="modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="modal-title" style="margin-bottom:0;">New event</div>
+      <button type="button" style="width:28px;height:28px;border-radius:50%;border:none;background:rgba(120,120,128,0.12);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink3);" onclick="closeAdd()">
+        <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <form method="POST" action="/events/new">
+      <div class="ff"><label>Event name</label><input type="text" name="name" id="add-name" required placeholder="e.g. Holiday, Jack's birthday…"></div>
+      <div class="ff-row">
+        <div class="ff"><label>Category</label>
+          <select name="event_category" id="add-category">
+            <option value="event">📅 Event</option>
+            <option value="holiday">🏖 Holiday</option>
+            <option value="birthday">🎂 Birthday</option>
+            <option value="reminder">🔔 Reminder</option>
+            <option value="anniversary">💜 Anniversary</option>
+          </select>
+        </div>
+        <div class="ff"><label>Status</label>
+          <select name="status">
+            <option value="confirmed">✅ Confirmed</option>
+            <option value="tentative">❓ Tentative</option>
+          </select>
+        </div>
+      </div>
+      <div class="ff-row">
+        <div class="ff"><label>Start date</label><input type="date" name="event_date" id="add-date" value="{{ today.strftime('%Y-%m-%d') }}"></div>
+        <div class="ff"><label>End date <span style="font-weight:400;color:var(--ink4);">(opt)</span></label><input type="date" name="end_date" id="add-end-date"></div>
+      </div>
+      <div class="ff-row">
+        <div class="ff"><label>Start time <span style="font-weight:400;color:var(--ink4);">(opt)</span></label><input type="time" name="start_time"></div>
+        <div class="ff"><label>End time <span style="font-weight:400;color:var(--ink4);">(opt)</span></label><input type="time" name="end_time"></div>
+      </div>
+      <div class="ff"><label>Who</label>
+        <select name="assignee">
+          <option value="both">Both</option>
+          <option value="jack">Jack</option>
+          <option value="minke">Minke</option>
+        </select>
+      </div>
+      <div class="ff"><label>Notes <span style="font-weight:400;color:var(--ink4);">(opt)</span></label><textarea name="notes" placeholder="Any extra details…"></textarea></div>
+      <div class="ff"><label>Link to project <span style="font-weight:400;color:var(--ink4);">(opt)</span></label>
+        <select name="project_id" id="add-project" onchange="filterTasks('add')">
+          <option value="">— None —</option>
+          {% for p in projects %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="ff" id="add-task-wrap" style="display:none;"><label>Link to task <span style="font-weight:400;color:var(--ink4);">(opt)</span></label>
+        <select name="task_id" id="add-task">
+          <option value="">— None —</option>
+        </select>
+      </div>
+      <div class="modal-actions" style="justify-content:flex-end;">
+        <div style="display:flex;gap:8px;">
+          <button type="button" class="btn-ghost" onclick="closeAdd()">Cancel</button>
+          <button type="submit" class="btn-primary">Add event</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- ═══ EDIT EVENT MODAL ═══ -->
 <div class="modal-bg" id="edit-modal" onclick="if(event.target===this)closeEdit()">
@@ -461,19 +488,13 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
     <form method="POST" id="edit-form" action="">
       <div class="ff"><label>Event name</label><input type="text" name="name" id="edit-name" required></div>
       <div class="ff-row">
-        <div class="ff"><label>Start date</label><input type="date" name="event_date" id="edit-date"></div>
-        <div class="ff"><label>End date <span style="font-weight:400;color:var(--ink4);">(opt)</span></label><input type="date" name="end_date" id="edit-end-date"></div>
-      </div>
-      <div class="ff-row">
-        <div class="ff"><label>Start time <span style="font-weight:400;color:var(--ink4);">(opt)</span></label><input type="time" name="start_time" id="edit-start-time"></div>
-        <div class="ff"><label>End time <span style="font-weight:400;color:var(--ink4);">(opt)</span></label><input type="time" name="end_time" id="edit-end-time"></div>
-      </div>
-      <div class="ff-row">
-        <div class="ff"><label>Who</label>
-          <select name="assignee" id="edit-assignee">
-            <option value="both">Both</option>
-            <option value="jack">Jack</option>
-            <option value="minke">Minke</option>
+        <div class="ff"><label>Category</label>
+          <select name="event_category" id="edit-category">
+            <option value="event">📅 Event</option>
+            <option value="holiday">🏖 Holiday</option>
+            <option value="birthday">🎂 Birthday</option>
+            <option value="reminder">🔔 Reminder</option>
+            <option value="anniversary">💜 Anniversary</option>
           </select>
         </div>
         <div class="ff"><label>Status</label>
@@ -483,17 +504,31 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
           </select>
         </div>
       </div>
+      <div class="ff-row">
+        <div class="ff"><label>Start date</label><input type="date" name="event_date" id="edit-date"></div>
+        <div class="ff"><label>End date <span style="font-weight:400;color:var(--ink4);">(opt)</span></label><input type="date" name="end_date" id="edit-end-date"></div>
+      </div>
+      <div class="ff-row">
+        <div class="ff"><label>Start time <span style="font-weight:400;color:var(--ink4);">(opt)</span></label><input type="time" name="start_time" id="edit-start-time"></div>
+        <div class="ff"><label>End time <span style="font-weight:400;color:var(--ink4);">(opt)</span></label><input type="time" name="end_time" id="edit-end-time"></div>
+      </div>
+      <div class="ff"><label>Who</label>
+        <select name="assignee" id="edit-assignee">
+          <option value="both">Both</option>
+          <option value="jack">Jack</option>
+          <option value="minke">Minke</option>
+        </select>
+      </div>
       <div class="ff"><label>Notes</label><textarea name="notes" id="edit-notes" placeholder="Any extra details…"></textarea></div>
-      <div class="ff"><label>Link to project</label>
-        <select name="project_id" id="edit-project">
+      <div class="ff"><label>Link to project <span style="font-weight:400;color:var(--ink4);">(opt)</span></label>
+        <select name="project_id" id="edit-project" onchange="filterTasks('edit')">
           <option value="">— None —</option>
           {% for p in projects %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
         </select>
       </div>
-      <div class="ff"><label>Link to task</label>
+      <div class="ff" id="edit-task-wrap" style="display:none;"><label>Link to task <span style="font-weight:400;color:var(--ink4);">(opt)</span></label>
         <select name="task_id" id="edit-task">
           <option value="">— None —</option>
-          {% for t in all_tasks %}<option value="{{ t.id }}">{{ t.name }} ({{ t.project.name }})</option>{% endfor %}
         </select>
       </div>
       <div class="modal-actions">
@@ -511,12 +546,22 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:v
 <form method="POST" id="delete-form" action="" style="display:none;"></form>
 
 <script>
-const ALL_EVENTS = {{ events_by_day | tojson }};
+const ALL_EVENTS      = {{ events_by_day | tojson }};
+const TASKS_BY_PROJECT = {{ tasks_by_project | tojson }};
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DAY_NAMES   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const CUR_MONTH   = {{ month }};
 const CUR_YEAR    = {{ year }};
 let selectedKey   = null;
+
+// Category display config
+const CAT_META = {
+  holiday:     { icon: '🏖', label: 'Holiday' },
+  birthday:    { icon: '🎂', label: 'Birthday' },
+  reminder:    { icon: '🔔', label: 'Reminder' },
+  anniversary: { icon: '💜', label: 'Anniversary' },
+  event:       { icon: '📅', label: 'Event' },
+};
 
 function selectDay(key, day) {
   if (selectedKey) {
@@ -530,6 +575,7 @@ function selectDay(key, day) {
   const d     = new Date(CUR_YEAR, CUR_MONTH - 1, day);
   const label = DAY_NAMES[d.getDay()] + ', ' + day + ' ' + MONTH_NAMES[CUR_MONTH-1].slice(0,3) + ' ' + CUR_YEAR;
   document.getElementById('dp-date').textContent = label;
+  // Pre-fill add modal date
   document.getElementById('add-date').value = key;
 
   const evs  = ALL_EVENTS[key] || [];
@@ -548,6 +594,7 @@ function selectDay(key, day) {
     if (ev.assignee === 'jack')  whoStyle = 'color:var(--blue-t);font-weight:600;';
     if (ev.assignee === 'minke') whoStyle = 'color:var(--pink-t);font-weight:600;';
     const whoLabel = ev.assignee === 'jack' ? 'Jack' : ev.assignee === 'minke' ? 'Minke' : 'Both';
+    const cat = CAT_META[ev.event_category] || CAT_META.event;
     const statusBadge = ev.status === 'tentative'
       ? '<span style="font-size:10px;background:var(--amber-bg);color:var(--amber-t);padding:1px 6px;border-radius:4px;font-weight:600;margin-right:4px;">Tentative</span>'
       : '';
@@ -562,7 +609,7 @@ function selectDay(key, day) {
     return `<div class="dp-ev">
       <div class="dp-bar" style="background:${ev.dot};opacity:${ev.status==='tentative'?'0.5':'1'}"></div>
       <div style="flex:1;min-width:0;">
-        <div class="dp-ev-name">${statusBadge}${ev.name}${multiDay}</div>
+        <div class="dp-ev-name">${statusBadge}${cat.icon} ${ev.name}${multiDay}</div>
         <div class="dp-ev-sub"><span style="${whoStyle}">${whoLabel}</span>${timePart}</div>
         ${notesHtml}
       </div>
@@ -571,19 +618,52 @@ function selectDay(key, day) {
   }).join('');
 }
 
+// ── Project → Task skip logic ──
+function filterTasks(prefix) {
+  const projSelect = document.getElementById(prefix + '-project');
+  const taskWrap   = document.getElementById(prefix + '-task-wrap');
+  const taskSelect = document.getElementById(prefix + '-task');
+  const pid = projSelect.value;
+
+  if (!pid) {
+    taskWrap.style.display = 'none';
+    taskSelect.value = '';
+    return;
+  }
+
+  const tasks = TASKS_BY_PROJECT[pid] || [];
+  taskSelect.innerHTML = '<option value="">— None —</option>' +
+    tasks.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+
+  taskWrap.style.display = tasks.length ? 'block' : 'none';
+}
+
+// ── Add modal ──
+function openAddModal() {
+  document.getElementById('add-modal').classList.add('open');
+}
+function closeAdd() {
+  document.getElementById('add-modal').classList.remove('open');
+}
+
+// ── Edit modal ──
 function openEdit(ev) {
   document.getElementById('edit-form').action   = '/events/' + ev.event_id + '/edit';
   document.getElementById('delete-form').action = '/events/' + ev.event_id + '/delete';
-  document.getElementById('edit-name').value       = ev.name        || '';
-  document.getElementById('edit-date').value       = ev.event_date  || '';
-  document.getElementById('edit-end-date').value   = ev.end_date    || '';
-  document.getElementById('edit-start-time').value = ev.start_time  || '';
-  document.getElementById('edit-end-time').value   = ev.end_time    || '';
-  document.getElementById('edit-assignee').value   = ev.assignee    || 'both';
-  document.getElementById('edit-status').value     = ev.status      || 'confirmed';
-  document.getElementById('edit-notes').value      = ev.notes       || '';
-  document.getElementById('edit-project').value    = ev.project_id  || '';
-  document.getElementById('edit-task').value       = ev.task_id     || '';
+  document.getElementById('edit-name').value       = ev.name            || '';
+  document.getElementById('edit-category').value   = ev.event_category  || 'event';
+  document.getElementById('edit-date').value       = ev.event_date      || '';
+  document.getElementById('edit-end-date').value   = ev.end_date        || '';
+  document.getElementById('edit-start-time').value = ev.start_time      || '';
+  document.getElementById('edit-end-time').value   = ev.end_time        || '';
+  document.getElementById('edit-assignee').value   = ev.assignee        || 'both';
+  document.getElementById('edit-status').value     = ev.status          || 'confirmed';
+  document.getElementById('edit-notes').value      = ev.notes           || '';
+  // Set project then filter tasks
+  document.getElementById('edit-project').value = ev.project_id || '';
+  filterTasks('edit');
+  // Now set the task value (after options are populated)
+  if (ev.task_id) document.getElementById('edit-task').value = ev.task_id;
   document.getElementById('edit-modal').classList.add('open');
 }
 
@@ -598,12 +678,6 @@ function deleteEvent() {
 
 function goToday() { window.location.href = '/calendar'; }
 
-function toggleAdd() {
-  const form = document.getElementById('add-form');
-  const icon = document.getElementById('add-icon');
-  icon.classList.toggle('open', form.classList.toggle('open'));
-}
-
 function openDrawer(){
   document.getElementById('drawer').classList.add('open');
   document.getElementById('drawer-bg').classList.add('open');
@@ -616,7 +690,9 @@ function closeDrawer(){
   document.getElementById('drawer').setAttribute('aria-hidden','true');
   document.body.style.overflow='';
 }
-document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeDrawer(); closeEdit(); }});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeDrawer(); closeEdit(); closeAdd(); }
+});
 </script>
 </body>
 </html>

@@ -437,18 +437,19 @@ class Settings(db.Model):
 
 
 class CalEvent(db.Model):
-    id         = db.Column(db.Integer, primary_key=True)
-    name       = db.Column(db.String(300), nullable=False)
-    event_date = db.Column(db.Date, nullable=False)
-    end_date   = db.Column(db.Date, nullable=True)
-    start_time = db.Column(db.String(5), nullable=True)   # HH:MM
-    end_time   = db.Column(db.String(5), nullable=True)   # HH:MM
-    assignee   = db.Column(db.String(10), default='both')
-    status     = db.Column(db.String(20), default='confirmed')  # confirmed / tentative
-    notes      = db.Column(db.Text, default='')
-    project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=True)
-    task_id    = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    id             = db.Column(db.Integer, primary_key=True)
+    name           = db.Column(db.String(300), nullable=False)
+    event_date     = db.Column(db.Date, nullable=False)
+    end_date       = db.Column(db.Date, nullable=True)
+    start_time     = db.Column(db.String(5), nullable=True)
+    end_time       = db.Column(db.String(5), nullable=True)
+    assignee       = db.Column(db.String(10), default='both')
+    status         = db.Column(db.String(20), default='confirmed')
+    event_category = db.Column(db.String(20), default='event')  # holiday/birthday/reminder/event/anniversary
+    notes          = db.Column(db.Text, default='')
+    project_id     = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=True)
+    task_id        = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=True)
+    created_at     = db.Column(db.DateTime, default=datetime.utcnow)
 
     @property
     def who_label(self):
@@ -974,15 +975,20 @@ def calendar():
         db.extract('year',  CalEvent.event_date) == year,
     ).all()
 
+    # Category colour map: dot, bg, fg
+    CAT_COLORS = {
+        'holiday':     ('#34C759', '#E9FAF0', '#1A6B32'),
+        'birthday':    ('#FF375F', '#FFF0F3', '#9B1030'),
+        'reminder':    ('#FF9F0A', '#FFF5E6', '#7A4400'),
+        'anniversary': ('#BF5AF2', '#F5EEFF', '#6B1FA8'),
+        'event':       ('#0A84FF', '#E8F2FF', '#004FAD'),
+    }
+
     for ev in cal_events:
-        key = ev.event_date.strftime('%Y-%m-%d')
+        key      = ev.event_date.strftime('%Y-%m-%d')
         assignee = ev.assignee or 'both'
-        if assignee == 'jack':
-            dot, bg, fg = '#0A84FF', '#E8F2FF', '#004FAD'
-        elif assignee == 'minke':
-            dot, bg, fg = '#FF375F', '#FFF0F3', '#9B1030'
-        else:
-            dot, bg, fg = EVENT_COLORS
+        category = ev.event_category or 'event'
+        dot, bg, fg = CAT_COLORS.get(category, CAT_COLORS['event'])
         # For multi-day events, also add to intermediate days
         days_to_mark = [key]
         if ev.end_date and ev.end_date > ev.event_date:
@@ -991,26 +997,27 @@ def calendar():
                 days_to_mark.append(d.strftime('%Y-%m-%d'))
                 d += timedelta(days=1)
         entry = {
-            'name':       ev.name,
-            'dot':        dot, 'bg': bg, 'fg': fg,
-            'label':      'Personal event',
-            'who':        WHO_LABELS.get(ev.assignee, 'Both'),
-            'event_id':   ev.id,
-            'assignee':   assignee,
-            'status':     ev.status or 'confirmed',
-            'notes':      ev.notes or '',
-            'event_date': ev.event_date.isoformat(),
-            'end_date':   ev.end_date.isoformat() if ev.end_date else '',
-            'start_time': ev.start_time or '',
-            'end_time':   ev.end_time or '',
-            'project_id': ev.project_id,
-            'task_id':    ev.task_id,
+            'name':           ev.name,
+            'dot':            dot, 'bg': bg, 'fg': fg,
+            'label':          category.title(),
+            'who':            WHO_LABELS.get(ev.assignee, 'Both'),
+            'event_id':       ev.id,
+            'assignee':       assignee,
+            'status':         ev.status or 'confirmed',
+            'event_category': category,
+            'notes':          ev.notes or '',
+            'event_date':     ev.event_date.isoformat(),
+            'end_date':       ev.end_date.isoformat() if ev.end_date else '',
+            'start_time':     ev.start_time or '',
+            'end_time':       ev.end_time or '',
+            'project_id':     ev.project_id,
+            'task_id':        ev.task_id,
         }
         for day_key in days_to_mark:
             add_ev(day_key, entry)
 
     # Upcoming — task deadlines + events in next 30 days, sorted by date
-    cutoff = today + timedelta(days=30)
+    cutoff = today + timedelta(days=7)
     upcoming = []
 
     for t in Task.query.filter(
@@ -1033,18 +1040,23 @@ def calendar():
         CalEvent.event_date <= cutoff,
     ).order_by(CalEvent.event_date).all():
         upcoming.append({
-            'date':    ev.event_date,
-            'name':    ev.name,
-            'type':    'event',
-            'project': None,
-            'color':   'purple',
-            'who':     WHO_LABELS.get(ev.assignee, 'Both'),
+            'date':           ev.event_date,
+            'name':           ev.name,
+            'type':           'event',
+            'project':        None,
+            'color':          'purple',
+            'event_category': ev.event_category or 'event',
+            'who':            WHO_LABELS.get(ev.assignee, 'Both'),
         })
 
     upcoming.sort(key=lambda x: x['date'])
 
     projects  = Project.query.filter_by(archived=False).order_by(Project.created_at).all()
     all_tasks = Task.query.filter_by(done=False).order_by(Task.name).all()
+    # Build {project_id: [{id, name}, ...]} for JS skip logic
+    tasks_by_project = {}
+    for t in all_tasks:
+        tasks_by_project.setdefault(str(t.project_id), []).append({'id': t.id, 'name': t.name})
 
     return render_template('calendar.html',
         today=today, month=month, year=year,
@@ -1052,7 +1064,8 @@ def calendar():
         events_by_day=events_by_day, upcoming=upcoming,
         prev_month=prev_month, prev_year=prev_year,
         next_month=next_month, next_year=next_year,
-        projects=projects, all_tasks=all_tasks, hex=PROJECT_HEX)
+        projects=projects, all_tasks=all_tasks,
+        tasks_by_project=tasks_by_project, hex=PROJECT_HEX)
 
 
 @app.route('/events/new', methods=['POST'])
@@ -1065,16 +1078,17 @@ def event_new():
         pid = request.form.get('project_id', type=int)
         tid = request.form.get('task_id', type=int)
         ev = CalEvent(
-            name       = name,
-            event_date = date.fromisoformat(event_date),
-            end_date   = date.fromisoformat(end_date_str) if end_date_str else None,
-            start_time = request.form.get('start_time','').strip() or None,
-            end_time   = request.form.get('end_time','').strip() or None,
-            assignee   = request.form.get('assignee','both'),
-            status     = request.form.get('status','confirmed'),
-            notes      = request.form.get('notes','').strip(),
-            project_id = pid or None,
-            task_id    = tid or None,
+            name           = name,
+            event_date     = date.fromisoformat(event_date),
+            end_date       = date.fromisoformat(end_date_str) if end_date_str else None,
+            start_time     = request.form.get('start_time','').strip() or None,
+            end_time       = request.form.get('end_time','').strip() or None,
+            assignee       = request.form.get('assignee','both'),
+            status         = request.form.get('status','confirmed'),
+            event_category = request.form.get('event_category','event'),
+            notes          = request.form.get('notes','').strip(),
+            project_id     = pid or None,
+            task_id        = tid or None,
         )
         db.session.add(ev)
         db.session.commit()
@@ -1093,9 +1107,10 @@ def event_edit(eid):
     ev.end_date   = date.fromisoformat(end_date_str) if end_date_str else None
     ev.start_time = request.form.get('start_time','').strip() or None
     ev.end_time   = request.form.get('end_time','').strip() or None
-    ev.assignee   = request.form.get('assignee', ev.assignee)
-    ev.status     = request.form.get('status', 'confirmed')
-    ev.notes      = request.form.get('notes', '').strip()
+    ev.assignee       = request.form.get('assignee', ev.assignee)
+    ev.status         = request.form.get('status', 'confirmed')
+    ev.event_category = request.form.get('event_category', 'event')
+    ev.notes          = request.form.get('notes', '').strip()
     pid = request.form.get('project_id', type=int)
     tid = request.form.get('task_id', type=int)
     ev.project_id = pid or None

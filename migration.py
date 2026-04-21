@@ -20,13 +20,14 @@ migrations = {
         ('fat_g',       'REAL'),
     ],
     'cal_event': [
-        ('notes',      'TEXT DEFAULT ""'),
-        ('project_id', 'INTEGER'),
-        ('task_id',    'INTEGER'),
-        ('end_date',   'DATE'),
-        ('start_time', 'TEXT'),
-        ('end_time',   'TEXT'),
-        ('status',     'TEXT DEFAULT "confirmed"'),
+        ('notes',          'TEXT DEFAULT ""'),
+        ('project_id',     'INTEGER'),
+        ('task_id',        'INTEGER'),
+        ('end_date',       'DATE'),
+        ('start_time',     'TEXT'),
+        ('end_time',       'TEXT'),
+        ('status',         'TEXT DEFAULT "confirmed"'),
+        ('event_category', 'TEXT DEFAULT "event"'),
     ],
 }
 
